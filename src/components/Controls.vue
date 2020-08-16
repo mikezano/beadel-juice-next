@@ -1,12 +1,15 @@
 <template>
 	<div class="tools">
-		<button class="tools__select-file" @click="updateCanvasImageButton">Select File</button>
-		<input type="file" ref="file" @change="updateCanvasImage" v-show="false" git />
+		<FileLoad :afterLoad="displayOriginal" />
+		<canvas id="canvas" ref="beadCanvas"></canvas>
+		<div>Original</div>
+		<img class="tools__img-ref" ref="originalImage" />
+		<div>Bead</div>
+		<img class="tools__img-bead" ref="beadImage" />
 		<template v-if="showControls">
 			<div>Original</div>
 			<div class="tools__canvas">
-				<canvas id="canvas" ref="imageCanvas"></canvas>
-				<img class="tools__img-ref" ref="imgRef" />
+				<!-- <img class="tools__img-ref" ref="imgRef" /> -->
 			</div>
 			<div>Pixel Size: {{ zoom }}px</div>
 			<input
@@ -22,7 +25,11 @@
 
 			<div>
 				<label>Highlight Matches</label>
-				<input type="checkbox" @change="updateAreMatchesHighlighted" checked />
+				<input
+					type="checkbox"
+					@change="updateAreMatchesHighlighted"
+					checked
+				/>
 			</div>
 
 			<button class="tools__clear" @click="clearButton">Clear</button>
@@ -40,28 +47,123 @@
 // } from "../models/colorCounter";
 //import { mapMutations } from "vuex";
 import { ref } from 'vue'; // <-- Use this line if you're in a Vue 3 app
+import chroma from 'chroma-js';
+import { rgbToHex, closestColor } from '../utils/colors.js';
+import FileLoad from './FileLoad';
 
 export default {
+	components: {
+		FileLoad,
+	},
 	setup() {
 		const file = ref(null);
-		return { file };
+		const originalImage = ref(null);
+		const beadCanvas = ref(null);
+		const beadImage = ref(null);
+		let pixelGridData = [];
+
+		const displayOriginal = (img) => {
+			originalImage.value.src = img.src;
+			drawCanvasImage(img);
+		};
+
+		const drawFinalResult = () => {
+			const canvas = beadCanvas.value;
+			//canvas.width = beadCanvas.value.width;
+			//canvas.height = beadCanvas.value.height;
+
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.imageSmoothingEnabled = false;
+
+			let buffer = [];
+			for (let i = 0; i < pixelGridData.length; i++) {
+				const _i = i * 4;
+				const rgb = chroma(pixelGridData[i].closestHex).rgba();
+				buffer[_i] = rgb[0];
+				buffer[_i + 1] = rgb[1];
+				buffer[_i + 2] = rgb[2];
+				buffer[_i + 3] = 255;
+			}
+
+			let iData = ctx.createImageData(canvas.width, canvas.height);
+			iData.data.set(buffer);
+			ctx.putImageData(iData, 0, 0);
+
+			const base64 = canvas.toDataURL();
+			beadImage.value.src = base64;
+		};
+
+		const drawCanvasImage = (img) => {
+			console.log('Draw this image', img);
+			var canvas = beadCanvas.value;
+			canvas.width = img.width;
+			canvas.height = img.height;
+
+			//draw on the canvas
+			var ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.imageSmoothingEnabled = false; //make sure its pixelated
+			ctx.drawImage(img, 0, 0);
+
+			//get the pixel data off the canvas
+			var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			var data = imgData.data;
+
+			pixelGridData = []; //clear previous image
+			for (let i = 0; i < data.length; i += 4) {
+				const red = data[i];
+				const green = data[i + 1];
+				const blue = data[i + 2];
+
+				//const hsl = this.rgbToHSL(red, green, blue);
+
+				const hex = rgbToHex(red, green, blue);
+				const closest = closestColor(hex, false, []);
+
+				//console.log('HSL: ', hsl);
+				const rand = Math.random();
+				pixelGridData.push({
+					closestHex: closest.hex,
+					hex: hex,
+					rgb: `${red},${green},${blue}`,
+					id: rand,
+					key: `${rand}-0`,
+					highlight: false,
+					name: closest.name,
+					code: closest.code,
+				});
+			}
+
+			console.log('Pixel data ready', pixelGridData);
+			// this.$store.commit('updatePixelGridData', {
+			// 	pixelGridData: this.pixelGridData,
+			// 	width: canvas.width,
+			// 	height: canvas.height,
+			// });
+			drawFinalResult();
+		};
+
+		return { file, displayOriginal, originalImage, beadCanvas, beadImage };
 	},
 };
 </script>
 
 <style lang="scss">
+.tools__img-bead {
+	image-rendering: pixelated;
+}
 .tools {
 	$orange: orange;
 	$blue: lightblue;
 	display: flex;
 	flex-direction: column;
 	padding: 0 1rem;
-	&__canvas,
-	&__img-ref {
-		width: 100%;
-	}
-	&__img-ref {
+
+	&__img-ref,
+	&__img-bead {
 		image-rendering: pixelated;
+		width: 100%;
 	}
 	&__range {
 		margin: 1rem 0;

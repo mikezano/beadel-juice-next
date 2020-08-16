@@ -86,7 +86,7 @@ $headerHeight: 4rem;
 
 	&__controls,
 	&__details {
-		width: 10rem;
+		width: 15rem;
 	}
 	&__grid {
 		flex: 1;
