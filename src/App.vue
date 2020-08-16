@@ -1,28 +1,51 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+	<!-- <div> -->
+	<!-- <h1>My Event</h1>
+		<p>Capacity: {{ capacity }}</p>
+	<button @click="increaseCapacity()">Increase Capacity</button>-->
+	<header>
+		<h1>Beadle Juice</h1>
+	</header>
+	<Main />
+	<!-- </div> -->
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+//import { ref } from '@vue/composition-api'; // <-- Use this line if you're in a Vue 2 app with the composition API plugin
+//import { ref } from 'vue'; // <-- Use this line if you're in a Vue 3 app
+import Main from '@/views/Main';
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+	components: {
+		Main,
+	},
+	// setup() {
+	// 	const capacity = ref(3);
+
+	// 	function increaseCapacity() {
+	// 		capacity.value++;
+	// 	}
+	// 	return { capacity, increaseCapacity };
+	// },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="scss">
+:root {
+	font-size: 16px;
+}
+body {
+	padding: 0;
+	margin: 0;
+}
+h1 {
+	padding: 0;
+	margin: 0;
+}
+header {
+	height: 4rem;
+	margin: 0;
+	padding: 0;
+	background-color: lightskyblue;
 }
 </style>
