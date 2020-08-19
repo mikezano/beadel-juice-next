@@ -29,7 +29,8 @@ export default {
 
 		img.onload = () => {
 			console.log('load image');
-			props.afterLoad(img);
+			console.log(img.src);
+			props.afterLoad(img.src, img.width, img.height);
 		};
 
 		const preLoad = () => {

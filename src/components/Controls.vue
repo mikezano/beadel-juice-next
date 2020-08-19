@@ -1,16 +1,16 @@
 <template>
 	<div class="tools">
 		<FileLoad :afterLoad="displayOriginal" />
-		<Previews :img="workingImage" />
+		<Previews :wi="state.base64" :width="state.imgWidth" :height="state.imgHeight" />
 		<!-- <canvas id="canvas" ref="beadCanvas"></canvas>
 		<div>Original</div>
 		<img class="tools__img-ref" ref="originalImage" />
 		<div>Bead</div>
-		<img class="tools__img-bead" ref="beadImage" /> -->
-		<template v-if="showControls">
+		<img class="tools__img-bead" ref="beadImage" />-->
+		<!-- <template v-if="showControls">
 			<div>Original</div>
 			<div class="tools__canvas">
-				<!-- <img class="tools__img-ref" ref="imgRef" /> -->
+
 			</div>
 			<div>Pixel Size: {{ zoom }}px</div>
 			<input
@@ -26,15 +26,11 @@
 
 			<div>
 				<label>Highlight Matches</label>
-				<input
-					type="checkbox"
-					@change="updateAreMatchesHighlighted"
-					checked
-				/>
+				<input type="checkbox" @change="updateAreMatchesHighlighted" checked />
 			</div>
 
 			<button class="tools__clear" @click="clearButton">Clear</button>
-		</template>
+		</template>-->
 	</div>
 </template>
 
@@ -47,7 +43,7 @@
 // 	nearestPerlerByHex_Chroma
 // } from "../models/colorCounter";
 //import { mapMutations } from "vuex";
-import { ref } from 'vue'; // <-- Use this line if you're in a Vue 3 app
+import { ref, reactive } from 'vue'; // <-- Use this line if you're in a Vue 3 app
 //import chroma from 'chroma-js';
 //import { rgbToHex, closestColor } from '../utils/colors.js';
 import FileLoad from './FileLoad';
@@ -67,11 +63,35 @@ export default {
 		//const beadCanvas = ref(null);
 		//const beadImage = ref(null);
 		//const gridData = [];
-		let workingImage = ref(null);
 
-		const displayOriginal = (img) => {
-			workingImage = img;
-			console.log('working image', workingImage); //originalImage.value.src = img.src;
+		//const state = reactive({ workingImage: null });
+		//const workingImage = ref(null);
+
+		const randomNumber = ref(0);
+		// const state = reactive({
+		// 	base64: ref(''),
+		// 	width: ref(0),
+		// 	height: ref(0),
+		// });
+		const base64 = ref('');
+		const imgWidth = ref(0);
+		const imgHeight = ref(0);
+		//const sampleText = ref('Mike');
+
+		const state = reactive({ base64, imgWidth, imgHeight });
+
+		const displayOriginal = (base64Img, width, height) => {
+			console.log('displayOriginal');
+			randomNumber.value = Math.floor(Math.random() * 100);
+			//workingImage.value = base64;
+			base64.value = base64Img;
+			imgWidth.value = width;
+			imgHeight.value = height;
+			//state.width = width;
+			//state.height = height;
+			//state.workingImage = img;
+			//sampleText.value = 'Zano';
+			console.log('working image', base64); //originalImage.value.src = img.src;
 			//drawCanvasImage(img);
 		};
 
@@ -152,7 +172,7 @@ export default {
 		// 	drawFinalResult();
 		// };
 
-		return { workingImage, displayOriginal };
+		return { displayOriginal, state };
 	},
 };
 </script>

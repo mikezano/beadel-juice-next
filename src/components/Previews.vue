@@ -1,5 +1,5 @@
 <template lang="pug">
-canvas(ref='beadCanvas')
+canvas.preview__canvas(ref='beadCanvas')
 div Original
 img.tools__img-ref(ref='original')
 div Bead
@@ -13,29 +13,40 @@ import { rgbToHex, closestColor } from '../utils/colors';
 
 export default {
 	props: {
-		img: Object,
+		wi: String,
+		width: Number,
+		height: Number,
+		//sampleText: Number,
 	},
 
 	setup(props) {
 		const original = ref(null);
 		const beaded = ref(null);
 		const beadCanvas = ref(null);
+		//const wif = toRef(props, 'wi');
 		let gridData = [];
 
-		watch('img', (prev, next) => {
-			console.log('props', props);
-			console.log('prev/next', prev, next);
-		});
+		watch(
+			() => props.wi,
+			(a, b) => {
+				//console.log(wif);
+				console.log('watching');
+				console.log('current', a);
+				console.log('prev', b);
+				displayOriginal(a);
+			},
+		);
 
 		onMounted(() => {
 			console.log('on mounted');
-			console.log('Img', props.img);
-			displayOriginal(props.img);
+			console.log('Img from props', props.img);
+			//displayOriginal(props.img);
 		});
-		const displayOriginal = (img) => {
-			console.log('displayOriginal', img);
-			original.value.src = img.src;
-			drawCanvasImage(img);
+
+		const displayOriginal = (base64) => {
+			console.log('displayOriginal', base64);
+			original.value.src = base64;
+			drawCanvasImage(base64);
 		};
 
 		const drawFinalResult = () => {
@@ -65,17 +76,17 @@ export default {
 			beaded.value.src = base64;
 		};
 
-		const drawCanvasImage = (img) => {
-			console.log('Draw this image', img);
+		const drawCanvasImage = () => {
+			console.log('Draw this image', original.value);
 			var canvas = beadCanvas.value;
-			canvas.width = img.width;
-			canvas.height = img.height;
+			canvas.width = props.width;
+			canvas.height = props.height;
 
 			//draw on the canvas
 			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false; //make sure its pixelated
-			ctx.drawImage(img, 0, 0);
+			ctx.drawImage(original.value, 0, 0);
 
 			//get the pixel data off the canvas
 			var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -107,14 +118,16 @@ export default {
 			}
 
 			console.log('Pixel data ready', gridData);
-			// this.$store.commit('updatePixelGridData', {
-			// 	pixelGridData: this.pixelGridData,
-			// 	width: canvas.width,
-			// 	height: canvas.height,
-			// });
+
 			drawFinalResult();
 		};
 		return { original, beaded, beadCanvas };
 	},
 };
 </script>
+
+<style lang="scss">
+.preview__canvas {
+	display: none;
+}
+</style>
