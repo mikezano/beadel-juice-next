@@ -13,9 +13,9 @@ import { rgbToHex, closestColor } from '../utils/colors';
 
 export default {
 	props: {
-		wi: String,
-		width: Number,
-		height: Number,
+		wi: Object,
+		//width: Number,
+		//height: Number,
 		//sampleText: Number,
 	},
 
@@ -27,7 +27,7 @@ export default {
 		let gridData = [];
 
 		watch(
-			() => props.wi,
+			() => props.wi.base64,
 			(a, b) => {
 				//console.log(wif);
 				console.log('watching');
@@ -79,8 +79,8 @@ export default {
 		const drawCanvasImage = () => {
 			console.log('Draw this image', original.value);
 			var canvas = beadCanvas.value;
-			canvas.width = props.width;
-			canvas.height = props.height;
+			canvas.width = props.wi.imgWidth;
+			canvas.height = props.wi.imgHeight;
 
 			//draw on the canvas
 			var ctx = canvas.getContext('2d');
