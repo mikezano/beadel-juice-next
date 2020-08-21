@@ -2,9 +2,13 @@
 	<div class="main">
 		<section class="main__controls">
 			<Controls />
+			<button @click="inc">Inc</button>
+			<div>{{ countState.count }}</div>
 		</section>
 		<section class="main__grid">
 			<h1>Main Area</h1>
+			<Test />
+			<BeadGrid />
 		</section>
 		<section class="main__details">Details</section>
 	</div>
@@ -12,21 +16,35 @@
 
 <script>
 import Controls from '../components/Controls.vue';
-// import BeadGrid from '../components/BeadGrid.vue';
+import Test from '../components/Test.vue';
+import BeadGrid from '../components/BeadGrid.vue';
 // import BeadTip from '../components/BeadTip.vue';
 // import ColorStats from '../components/ColorStats.vue';
 
 // import { mapState } from 'vuex';
 import { ref } from 'vue';
+import { clickStore } from '../store/clickStore';
 export default {
 	components: {
 		Controls,
+		Test,
+		BeadGrid,
 	},
 	setup() {
 		const title = ref('Mike');
 		const canvasDimensions = { height: 0, width: 0 };
 
-		return { title, canvasDimensions };
+		const inc = () => {
+			clickStore.incrementCount();
+			//clickStore.getState().count++;
+		};
+
+		return {
+			countState: clickStore.getState(),
+			inc,
+			title,
+			canvasDimensions,
+		};
 	},
 
 	// data() {

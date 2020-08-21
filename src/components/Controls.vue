@@ -1,7 +1,7 @@
 <template>
 	<div class="tools">
 		<FileLoad :afterLoad="displayOriginal" />
-		<Previews :wi="state" />
+		<Previews :workingImage="state" />
 		<!-- <canvas id="canvas" ref="beadCanvas"></canvas>
 		<div>Original</div>
 		<img class="tools__img-ref" ref="originalImage" />

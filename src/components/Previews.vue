@@ -7,82 +7,54 @@ img.tools__img-bead(ref='beaded')
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue'; // <-- Use this line if you're in a Vue 3 app
+import { ref, watch } from 'vue'; // <-- Use this line if you're in a Vue 3 app
 import chroma from 'chroma-js';
 import { rgbToHex, closestColor } from '../utils/colors';
+import { clickStore } from '../store/clickStore';
 
 export default {
 	props: {
-		wi: Object,
-		//width: Number,
-		//height: Number,
-		//sampleText: Number,
+		workingImage: Object,
 	},
 
 	setup(props) {
 		const original = ref(null);
 		const beaded = ref(null);
 		const beadCanvas = ref(null);
-		//const wif = toRef(props, 'wi');
-		let gridData = [];
 
 		watch(
-			() => props.wi.base64,
-			(a, b) => {
-				//console.log(wif);
+			() => props.workingImage.base64,
+			(base64) => {
 				console.log('watching');
-				console.log('current', a);
-				console.log('prev', b);
-				displayOriginal(a);
+				//console.log('current', base64);
+				//console.log('prev', prevBase64);
+				if (base64) createPreviews(base64);
 			},
 		);
 
-		onMounted(() => {
-			console.log('on mounted');
-			console.log('Img from props', props.img);
-			//displayOriginal(props.img);
-		});
+		const createPreviews = (base64) => {
+			displayOriginalImg(base64);
+			const canvasData = drawOriginalOnCanvas();
+			console.log('generate bead');
+			const beadedData = generateBeadedData(canvasData);
+			console.log('display beaded');
+			displayBeadedImg(beadedData);
+			console.log('set bead data');
+			clickStore.setBeadData(beadedData);
+			console.log('end preview');
+		};
 
-		const displayOriginal = (base64) => {
-			console.log('displayOriginal', base64);
+		const displayOriginalImg = (base64) => {
 			original.value.src = base64;
-			drawCanvasImage(base64);
 		};
 
-		const drawFinalResult = () => {
-			const canvas = beadCanvas.value;
-			//canvas.width = beadCanvas.value.width;
-			//canvas.height = beadCanvas.value.height;
-
-			const ctx = canvas.getContext('2d');
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.imageSmoothingEnabled = false;
-
-			let buffer = [];
-			for (let i = 0; i < gridData.length; i++) {
-				const _i = i * 4;
-				const rgb = chroma(gridData[i].closestHex).rgba();
-				buffer[_i] = rgb[0];
-				buffer[_i + 1] = rgb[1];
-				buffer[_i + 2] = rgb[2];
-				buffer[_i + 3] = 255;
-			}
-
-			let iData = ctx.createImageData(canvas.width, canvas.height);
-			iData.data.set(buffer);
-			ctx.putImageData(iData, 0, 0);
-
-			const base64 = canvas.toDataURL();
-			beaded.value.src = base64;
-		};
-
-		const drawCanvasImage = () => {
-			console.log('Draw this image', original.value);
+		const drawOriginalOnCanvas = () => {
+			//get the DOM element and set dimensions
 			var canvas = beadCanvas.value;
-			canvas.width = props.wi.imgWidth;
-			canvas.height = props.wi.imgHeight;
+			canvas.width = props.workingImage.imgWidth;
+			canvas.height = props.workingImage.imgHeight;
 
-			//draw on the canvas
+			//draw on the canvas with the DOM img element
 			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false; //make sure its pixelated
@@ -90,37 +62,67 @@ export default {
 
 			//get the pixel data off the canvas
 			var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-			var data = imgData.data;
 
-			gridData = []; //clear previous image
+			return imgData.data;
+		};
+
+		const generateBeadedData = (data) => {
+			//create object to hold the 'beaded' version
+			let gridData = []; //clear previous image
 			for (let i = 0; i < data.length; i += 4) {
 				const red = data[i];
 				const green = data[i + 1];
 				const blue = data[i + 2];
 
-				//const hsl = this.rgbToHSL(red, green, blue);
-
-				const hex = rgbToHex(red, green, blue);
-				const closest = closestColor(hex, false, []);
-
-				//console.log('HSL: ', hsl);
+				const original = rgbToHex(red, green, blue);
+				const beaded = closestColor(original, false, []);
 				const rand = Math.random();
+
 				gridData.push({
-					closestHex: closest.hex,
-					hex: hex,
+					color: {
+						originalHex: original,
+						beadedHex: beaded.hex,
+					},
 					rgb: `${red},${green},${blue}`,
 					id: rand,
 					key: `${rand}-0`,
 					highlight: false,
-					name: closest.name,
-					code: closest.code,
+					name: beaded.name,
+					code: beaded.code,
 				});
 			}
-
-			console.log('Pixel data ready', gridData);
-
-			drawFinalResult();
+			return gridData;
 		};
+
+		const displayBeadedImg = (gridData) => {
+			//re-grab the canvas
+			const canvas = beadCanvas.value;
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.imageSmoothingEnabled = false;
+
+			//canvas' use RGB values, need to convert gridData from hex to RGBa
+			let buffer = [];
+			for (let i = 0; i < gridData.length; i++) {
+				const _i = i * 4;
+				const rgb = chroma(gridData[i].color.beadedHex).rgba();
+				buffer[_i] = rgb[0];
+				buffer[_i + 1] = rgb[1];
+				buffer[_i + 2] = rgb[2];
+				buffer[_i + 3] = 255;
+			}
+
+			//buffer has the RGBa values to put on canvas
+			//we draw the 'beaded' version on the canvas
+			let iData = ctx.createImageData(canvas.width, canvas.height);
+			iData.data.set(buffer);
+			ctx.putImageData(iData, 0, 0);
+
+			//pull the base64 value off canvas and use it on DOM img beaded
+			const base64 = canvas.toDataURL();
+			beaded.value.src = base64;
+		};
+
 		return { original, beaded, beadCanvas };
 	},
 };
