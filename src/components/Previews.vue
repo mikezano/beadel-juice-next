@@ -1,16 +1,17 @@
 <template lang="pug">
-canvas.preview__canvas(ref='beadCanvas')
-div Original
-img.tools__img-ref(ref='original')
-div Bead
-img.tools__img-bead(ref='beaded')
+canvas.preview__canvas(ref="beadCanvas")
+.preview__title Original
+img.preview__img(ref="original")
+.preview__title Bead
+img.preview__img(ref="beaded")
 </template>
 
 <script>
-import { ref, watch } from 'vue'; // <-- Use this line if you're in a Vue 3 app
-import chroma from 'chroma-js';
-import { rgbToHex, closestColor } from '../utils/colors';
-import { clickStore } from '../store/clickStore';
+import { ref, watch } from "vue"; // <-- Use this line if you're in a Vue 3 app
+import chroma from "chroma-js";
+import { rgbToHex, closestColor } from "../utils/colors";
+//import { clickStore } from "../store/clickStore";
+import { store } from "../store/beadStore";
 
 export default {
 	props: {
@@ -21,27 +22,32 @@ export default {
 		const original = ref(null);
 		const beaded = ref(null);
 		const beadCanvas = ref(null);
+		const localStore = store.state;
 
 		watch(
 			() => props.workingImage.base64,
 			(base64) => {
-				console.log('watching');
+				console.log("watching");
 				//console.log('current', base64);
 				//console.log('prev', prevBase64);
 				if (base64) createPreviews(base64);
-			},
+			}
 		);
 
 		const createPreviews = (base64) => {
 			displayOriginalImg(base64);
 			const canvasData = drawOriginalOnCanvas();
-			console.log('generate bead');
-			const beadedData = generateBeadedData(canvasData);
-			console.log('display beaded');
-			displayBeadedImg(beadedData);
-			console.log('set bead data');
-			clickStore.setBeadData(beadedData);
-			console.log('end preview');
+			console.log("generate bead");
+			const _beadsData = generateBeadsData(canvasData);
+			console.log("display beaded");
+			displayBeadedImg(_beadsData);
+			console.log("set bead data");
+
+			console.log("end preview");
+			localStore.beadsData = _beadsData;
+			localStore.imgWidth = props.workingImage.imgWidth;
+			localStore.imgHeight = props.workingImage.imgHeight;
+			console.log("Store now", store.state);
 		};
 
 		const displayOriginalImg = (base64) => {
@@ -55,7 +61,7 @@ export default {
 			canvas.height = props.workingImage.imgHeight;
 
 			//draw on the canvas with the DOM img element
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext("2d");
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false; //make sure its pixelated
 			ctx.drawImage(original.value, 0, 0);
@@ -66,7 +72,7 @@ export default {
 			return imgData.data;
 		};
 
-		const generateBeadedData = (data) => {
+		const generateBeadsData = (data) => {
 			//create object to hold the 'beaded' version
 			let gridData = []; //clear previous image
 			for (let i = 0; i < data.length; i += 4) {
@@ -81,7 +87,7 @@ export default {
 				gridData.push({
 					color: {
 						originalHex: original,
-						beadedHex: beaded.hex,
+						beadHex: beaded.hex,
 					},
 					rgb: `${red},${green},${blue}`,
 					id: rand,
@@ -97,7 +103,7 @@ export default {
 		const displayBeadedImg = (gridData) => {
 			//re-grab the canvas
 			const canvas = beadCanvas.value;
-			const ctx = canvas.getContext('2d');
+			const ctx = canvas.getContext("2d");
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false;
 
@@ -105,7 +111,7 @@ export default {
 			let buffer = [];
 			for (let i = 0; i < gridData.length; i++) {
 				const _i = i * 4;
-				const rgb = chroma(gridData[i].color.beadedHex).rgba();
+				const rgb = chroma(gridData[i].color.beadHex).rgba();
 				buffer[_i] = rgb[0];
 				buffer[_i + 1] = rgb[1];
 				buffer[_i + 2] = rgb[2];
@@ -129,7 +135,18 @@ export default {
 </script>
 
 <style lang="scss">
-.preview__canvas {
-	display: none;
+.preview {
+	&__canvas {
+		display: none;
+	}
+	&__title {
+		font-weight: bold;
+		padding: 0.8rem 0;
+	}
+	&__img {
+		border: 1px solid white;
+		width: 100%;
+		image-rendering: pixelated;
+	}
 }
 </style>

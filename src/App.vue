@@ -13,7 +13,7 @@
 <script>
 //import { ref } from '@vue/composition-api'; // <-- Use this line if you're in a Vue 2 app with the composition API plugin
 //import { ref } from 'vue'; // <-- Use this line if you're in a Vue 3 app
-import Main from '@/views/Main';
+import Main from "@/views/Main";
 
 export default {
 	components: {
@@ -37,6 +37,9 @@ export default {
 body {
 	padding: 0;
 	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #333;
+	color: white;
 }
 h1 {
 	padding: 0;
@@ -46,6 +49,6 @@ header {
 	height: 4rem;
 	margin: 0;
 	padding: 0;
-	background-color: lightskyblue;
+	//background-color: lightskyblue;
 }
 </style>
