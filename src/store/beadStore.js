@@ -7,6 +7,9 @@ class BeadStore {
       imgHeight: 0,
       beadsData: [],
       hoveredBead: null,
+      hoveredColor: null,
+      usePerler: true,
+      useHama: true,
     };
 
     this.state = reactive(data);

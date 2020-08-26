@@ -9,6 +9,7 @@
 				}"
 				:data-id="bead.id"
 				:data-key="bead.key"
+				:data-highlight="bead.highlight"
 				:key="bead.key"
 				:style="beadBGStyle(bead)"
 			></div>
@@ -19,7 +20,14 @@
 <script>
 //import { ref } from 'vue';
 import { store } from "../store/beadStore";
-import { ref, onUpdated, onMounted, onRenderTriggered, watch } from "vue";
+import {
+	ref,
+	onUpdated,
+	onMounted,
+	onRenderTriggered,
+	watch,
+	//watchEffect,
+} from "vue";
 export default {
 	setup() {
 		const beadGrid = ref(null);
@@ -60,6 +68,36 @@ export default {
 			}
 		);
 
+		// watchEffect(() => {
+		// 	console.log("Watch hovered bead", localStore);
+		// 	if (!localStore.hoveredBead) return;
+		// 	const { code, name } = localStore.hoveredBead;
+		// 	findMatchingBeads(code + name);
+		// });
+
+		watch(
+			() => localStore.hoveredColor,
+			(hoveredColor) => {
+				const { code, name } = hoveredColor;
+				console.log("hovered color", hoveredColor);
+				findMatchingBeads(code + name);
+				// console.log(
+				// 	"Watching two things",
+				// 	newBead,
+				// 	newColor,
+				// 	prevBead,
+				// 	prevColor
+				// );
+			}
+		);
+
+		// watchEffect(() => {
+		// 	// console.log("Watch hovered color", localStore);
+		// 	if (!localStore.hoveredColor) return;
+		// 	const { code, name } = localStore.hoveredColor;
+		// 	findMatchingBeads(code + name);
+		// });
+
 		onRenderTriggered(() => {});
 		onMounted(() => {
 			console.log("Local sotre", store);
@@ -87,16 +125,37 @@ export default {
 				(f) => f.id.toString() === id.toString()
 			)[0];
 
+			//findMatchingBeads(hoveredCell);
+			// localStore.beadsData.map((bead) => {
+			// 	bead.highlight = bead.name === hoveredCell.name;
+			// 	if (bead.highlight === true) {
+			// 		bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
+			// 	}
+			// 	return bead;
+			// });
+
+			//console.log("Saved hovered", hoveredCell);
+			localStore.hoveredBead = hoveredCell;
+			const { code, name } = hoveredCell;
+			console.log(
+				"Hovered on the grid",
+				hoveredCell,
+				hoveredCell.code,
+				hoveredCell.name
+			);
+			findMatchingBeads(code + name);
+		};
+
+		const findMatchingBeads = (match) => {
 			localStore.beadsData.map((bead) => {
-				bead.highlight = bead.name === hoveredCell.name;
+				console.log("Condition", bead.code, bead.name, match);
+				bead.highlight = bead.code + bead.name === match;
 				if (bead.highlight === true) {
+					console.log("bead being highlighted", bead);
 					bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
 				}
 				return bead;
 			});
-
-			//console.log("Saved hovered", hoveredCell);
-			localStore.hoveredBead = hoveredCell;
 		};
 
 		return {
@@ -121,7 +180,7 @@ export default {
 	align-items: center;
 	overflow: auto;
 	//padding: 1rem;
-	//border: 0.1rem solid black;
+	border: 1px solid #555;
 	background-color: #888;
 	box-shadow: inset 0 0 1rem #000;
 }

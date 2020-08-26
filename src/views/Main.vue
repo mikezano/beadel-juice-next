@@ -7,7 +7,9 @@
 			<BeadGrid @onHover="highlightBeads" />
 			<BeadInfo />
 		</section>
-		<section class="main__details">Details</section>
+		<section class="main__details">
+			<Colors />
+		</section>
 	</div>
 </template>
 
@@ -16,12 +18,14 @@ import { ref } from "vue";
 import Controls from "../components/Controls";
 import BeadGrid from "../components/BeadGrid";
 import BeadInfo from "../components/BeadInfo";
+import Colors from "../components/Colors";
 
 export default {
 	components: {
 		Controls,
 		BeadGrid,
 		BeadInfo,
+		Colors,
 	},
 	setup() {
 		const title = ref("Mike");

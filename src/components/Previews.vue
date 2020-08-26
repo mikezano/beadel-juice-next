@@ -81,7 +81,10 @@ export default {
 				const blue = data[i + 2];
 
 				const original = rgbToHex(red, green, blue);
-				const beaded = closestColor(original, false, []);
+				const beaded = closestColor(original, false, [], {
+					usePerler: localStore.usePerler,
+					useHama: localStore.useHama,
+				});
 				const rand = Math.random();
 
 				gridData.push({
@@ -141,10 +144,11 @@ export default {
 	}
 	&__title {
 		font-weight: bold;
-		padding: 0.8rem 0;
+		padding-bottom: 0.2rem;
+		padding-top: 0.4rem;
 	}
 	&__img {
-		border: 1px solid white;
+		border: 1px solid #666;
 		width: 100%;
 		image-rendering: pixelated;
 	}

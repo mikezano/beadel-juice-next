@@ -2,23 +2,17 @@
 	<div class="tools">
 		<FileLoad :afterLoad="displayOriginal" />
 		<Previews :workingImage="state" />
+		<ColorSet />
 	</div>
 </template>
 
 <script>
 //https://docs.google.com/spreadsheets/d/1u9CIj65P48rnmLr3yLIg096lRP-w-txcqBVfKnaCDZc/edit#gid=1983628989
 
-// import {
-// 	rgbToHex,
-// 	//nearestPerlerByHex
-// 	nearestPerlerByHex_Chroma
-// } from "../models/colorCounter";
-//import { mapMutations } from "vuex";
 import { ref, reactive } from "vue"; // <-- Use this line if you're in a Vue 3 app
-//import chroma from 'chroma-js';
-//import { rgbToHex, closestColor } from '../utils/colors.js';
 import FileLoad from "./FileLoad";
 import Previews from "./Previews";
+import ColorSet from "./ColorSet";
 
 export default {
 	props: {
@@ -27,6 +21,7 @@ export default {
 	components: {
 		FileLoad,
 		Previews,
+		ColorSet,
 	},
 	setup() {
 		const randomNumber = ref(0);
