@@ -3,7 +3,7 @@
 		<div class="bead-grid" ref="beadGrid" @mouseover="hoverCell">
 			<div
 				class="bead-grid__cell"
-				v-for="bead in localStore.beadsData"
+				v-for="bead in beadsData"
 				:class="{
 					'bead-grid__cell--highlight': bead.highlight === true,
 				}"
@@ -18,10 +18,12 @@
 </template>
 
 <script>
+//				<~--:style="beadBGStyle(bead)"
 //import { ref } from 'vue';
-import { store } from "../store/beadStore";
+import store from "../store/beadStore";
 import {
 	ref,
+	toRefs,
 	onUpdated,
 	onMounted,
 	onRenderTriggered,
@@ -32,12 +34,11 @@ export default {
 	setup() {
 		const beadGrid = ref(null);
 		const beadGridContainer = ref(null);
-		const localStore = store.state;
 
 		watch(
-			() => localStore.beadsData,
+			() => store.beadsData,
 			(beadsData) => {
-				console.log("watching");
+				console.log("watching bead changes", beadsData);
 				//console.log('current', base64);
 				//console.log('prev', prevBase64);
 				if (beadsData) {
@@ -53,8 +54,8 @@ export default {
 					const containerDimensions = beadGridContainer.value.getBoundingClientRect();
 					console.log("this works?", containerDimensions.width);
 
-					const width = localStore.imgWidth;
-					const height = localStore.imgHeight;
+					const width = store.imgWidth;
+					const height = store.imgHeight;
 					const size = containerDimensions.width / width;
 					console.log(
 						"this works?",
@@ -68,35 +69,14 @@ export default {
 			}
 		);
 
-		// watchEffect(() => {
-		// 	console.log("Watch hovered bead", localStore);
-		// 	if (!localStore.hoveredBead) return;
-		// 	const { code, name } = localStore.hoveredBead;
-		// 	findMatchingBeads(code + name);
-		// });
-
 		watch(
-			() => localStore.hoveredColor,
+			() => store.hoveredColor,
 			(hoveredColor) => {
 				const { code, name } = hoveredColor;
-				console.log("hovered color", hoveredColor);
+
 				findMatchingBeads(code + name);
-				// console.log(
-				// 	"Watching two things",
-				// 	newBead,
-				// 	newColor,
-				// 	prevBead,
-				// 	prevColor
-				// );
 			}
 		);
-
-		// watchEffect(() => {
-		// 	// console.log("Watch hovered color", localStore);
-		// 	if (!localStore.hoveredColor) return;
-		// 	const { code, name } = localStore.hoveredColor;
-		// 	findMatchingBeads(code + name);
-		// });
 
 		onRenderTriggered(() => {});
 		onMounted(() => {
@@ -121,21 +101,12 @@ export default {
 			const cellElement = event.target;
 			const { id } = cellElement.dataset;
 
-			const hoveredCell = localStore.beadsData.filter(
+			const hoveredCell = store.beadsData.filter(
 				(f) => f.id.toString() === id.toString()
 			)[0];
 
-			//findMatchingBeads(hoveredCell);
-			// localStore.beadsData.map((bead) => {
-			// 	bead.highlight = bead.name === hoveredCell.name;
-			// 	if (bead.highlight === true) {
-			// 		bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
-			// 	}
-			// 	return bead;
-			// });
-
 			//console.log("Saved hovered", hoveredCell);
-			localStore.hoveredBead = hoveredCell;
+			store.hoveredBead = hoveredCell;
 			const { code, name } = hoveredCell;
 			console.log(
 				"Hovered on the grid",
@@ -147,7 +118,7 @@ export default {
 		};
 
 		const findMatchingBeads = (match) => {
-			localStore.beadsData.map((bead) => {
+			store.beadsData.map((bead) => {
 				console.log("Condition", bead.code, bead.name, match);
 				bead.highlight = bead.code + bead.name === match;
 				if (bead.highlight === true) {
@@ -160,7 +131,7 @@ export default {
 
 		return {
 			hoverCell,
-			localStore,
+			...toRefs(store),
 			generateKey,
 			beadBGStyle,
 			beadGrid,

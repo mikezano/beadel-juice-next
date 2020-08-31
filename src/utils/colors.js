@@ -1,5 +1,5 @@
-import { store } from "../store/beadStore";
-const localStore = store.state;
+//import { store } from "../store/beadStore";
+//const localStore = store.state;
 const perler = require("../colors/perler.json");
 const hama = require("../colors/hama.json");
 const allColors = [].concat(perler).concat(hama);
@@ -63,7 +63,7 @@ const closestColor = (hex, ignoreExact, ignoreList, colorSet) => {
   let minDistance = 1000000;
   let closestColor = null;
   const colors = getColors(colorSet);
-  console.log("usable colors", colors, localStore, colorSet);
+  //console.log("usable colors", colors, localStore, colorSet);
   colors.forEach((p) => {
     if (
       (p.hex.toLowerCase() === hex && ignoreExact) ||

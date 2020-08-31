@@ -2,13 +2,14 @@
 	<div class="main">
 		<section class="main__controls">
 			<Controls />
+			<Test />
 		</section>
 		<section class="main__grid">
 			<BeadGrid @onHover="highlightBeads" />
-			<BeadInfo />
+			<!-- <BeadInfo /> -->
 		</section>
 		<section class="main__details">
-			<Colors />
+			<!-- <Colors /> -->
 		</section>
 	</div>
 </template>
@@ -17,15 +18,17 @@
 import { ref } from "vue";
 import Controls from "../components/Controls";
 import BeadGrid from "../components/BeadGrid";
-import BeadInfo from "../components/BeadInfo";
-import Colors from "../components/Colors";
+//import BeadInfo from "../components/BeadInfo";
+//import Colors from "../components/Colors";
+import Test from "../components/Test";
 
 export default {
 	components: {
 		Controls,
 		BeadGrid,
-		BeadInfo,
-		Colors,
+		//BeadInfo,
+		//Colors,
+		Test,
 	},
 	setup() {
 		const title = ref("Mike");

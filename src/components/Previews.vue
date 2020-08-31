@@ -10,8 +10,7 @@ img.preview__img(ref="beaded")
 import { ref, watch } from "vue"; // <-- Use this line if you're in a Vue 3 app
 import chroma from "chroma-js";
 import { rgbToHex, closestColor } from "../utils/colors";
-//import { clickStore } from "../store/clickStore";
-import { store } from "../store/beadStore";
+import store from "../store/beadStore";
 
 export default {
 	props: {
@@ -22,7 +21,6 @@ export default {
 		const original = ref(null);
 		const beaded = ref(null);
 		const beadCanvas = ref(null);
-		const localStore = store.state;
 
 		watch(
 			() => props.workingImage.base64,
@@ -44,10 +42,10 @@ export default {
 			console.log("set bead data");
 
 			console.log("end preview");
-			localStore.beadsData = _beadsData;
-			localStore.imgWidth = props.workingImage.imgWidth;
-			localStore.imgHeight = props.workingImage.imgHeight;
-			console.log("Store now", store.state);
+			store.beadsData = _beadsData;
+			store.imgWidth = props.workingImage.imgWidth;
+			store.imgHeight = props.workingImage.imgHeight;
+			console.log("Store now", store);
 		};
 
 		const displayOriginalImg = (base64) => {
@@ -75,30 +73,45 @@ export default {
 		const generateBeadsData = (data) => {
 			//create object to hold the 'beaded' version
 			let gridData = []; //clear previous image
+			let red = 0,
+				green = 0,
+				blue = 0,
+				rand = 0;
+			let previousBead = { color: { originalHex: null } };
+
 			for (let i = 0; i < data.length; i += 4) {
-				const red = data[i];
-				const green = data[i + 1];
-				const blue = data[i + 2];
+				red = data[i];
+				green = data[i + 1];
+				blue = data[i + 2];
+				rand = Math.random();
 
 				const original = rgbToHex(red, green, blue);
-				const beaded = closestColor(original, false, [], {
-					usePerler: localStore.usePerler,
-					useHama: localStore.useHama,
-				});
-				const rand = Math.random();
+				if (original === previousBead.color.originalHex) {
+					gridData.push({
+						...previousBead,
+						id: rand,
+						key: `${rand}-0`,
+					});
+				} else {
+					const beaded = closestColor(original, false, [], {
+						usePerler: store.usePerler,
+						useHama: store.useHama,
+					});
 
-				gridData.push({
-					color: {
-						originalHex: original,
-						beadHex: beaded.hex,
-					},
-					rgb: `${red},${green},${blue}`,
-					id: rand,
-					key: `${rand}-0`,
-					highlight: false,
-					name: beaded.name,
-					code: beaded.code,
-				});
+					previousBead = {
+						color: {
+							originalHex: original,
+							beadHex: beaded.hex,
+						},
+						rgb: `${red},${green},${blue}`,
+						id: rand,
+						key: `${rand}-0`,
+						highlight: false,
+						name: beaded.name,
+						code: beaded.code,
+					};
+					gridData.push(previousBead);
+				}
 			}
 			return gridData;
 		};

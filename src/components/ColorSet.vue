@@ -3,34 +3,25 @@
 	.color-set__title Color Set
 	.color-set__item
 		label Perler
-		input(
-			type="checkbox",
-			:checked="localStore.usePerler",
-			@change="togglePerler"
-		)
+		input(type="checkbox", :checked="store.usePerler", @change="togglePerler")
 	.color-set__item
 		label Hama
-		input(type="checkbox", :checked="localStore.useHama", @change="toggleHama")
+		input(type="checkbox", :checked="store.useHama", @change="toggleHama")
 </template>
 
 <script>
-//import { ref } from "vue";
-import { store } from "../store/beadStore";
+import store from "../store/beadStore";
 export default {
 	setup() {
-		const localStore = store.state;
-		//const usePerler = ref(true);
-		//const useHama = ref(true);
-
 		const togglePerler = () => {
-			localStore.usePerler = !localStore.usePerler;
+			store.usePerler = !store.usePerler;
 		};
 
 		const toggleHama = () => {
-			localStore.useHama = !localStore.useHama;
+			store.useHama.value = !store.useHama.value;
 		};
 
-		return { localStore, togglePerler, toggleHama };
+		return { store, togglePerler, toggleHama };
 	},
 };
 </script>

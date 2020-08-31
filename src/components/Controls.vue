@@ -9,7 +9,7 @@
 <script>
 //https://docs.google.com/spreadsheets/d/1u9CIj65P48rnmLr3yLIg096lRP-w-txcqBVfKnaCDZc/edit#gid=1983628989
 
-import { ref, reactive } from "vue"; // <-- Use this line if you're in a Vue 3 app
+import { reactive } from "vue"; // <-- Use this line if you're in a Vue 3 app
 import FileLoad from "./FileLoad";
 import Previews from "./Previews";
 import ColorSet from "./ColorSet";
@@ -24,27 +24,16 @@ export default {
 		ColorSet,
 	},
 	setup() {
-		const randomNumber = ref(0);
-		const base64 = ref("");
-		const imgWidth = ref(0);
-		const imgHeight = ref(0);
-		//const sampleText = ref('Mike');
+		//const base64 = ref("");
+		//const imgWidth = ref(0);
+		//const imgHeight = ref(0);
 
-		const state = reactive({ base64, imgWidth, imgHeight });
+		const state = reactive({ base64: "", imgWidth: 0, imgHeight: 0 });
 
 		const displayOriginal = (base64Img, width, height) => {
-			console.log("displayOriginal");
-			randomNumber.value = Math.floor(Math.random() * 100);
-			//workingImage.value = base64;
-			base64.value = base64Img;
-			imgWidth.value = width;
-			imgHeight.value = height;
-			//state.width = width;
-			//state.height = height;
-			//state.workingImage = img;
-			//sampleText.value = 'Zano';
-			console.log("working image", base64); //originalImage.value.src = img.src;
-			//drawCanvasImage(img);
+			state.base64 = base64Img;
+			state.imgWidth = width;
+			state.imgHeight = height;
 		};
 
 		return { displayOriginal, state };
