@@ -1,28 +1,27 @@
 <template lang="pug">
 .bead-info(v-if="hasBead()")
-	div ({{ localState.hoveredBead.code }})
+	div ({{ store.hoveredBead.code }})
 	div &nbsp;-&nbsp;
-	div {{ localState.hoveredBead.name }}
-	.bead-info__color(:style="setStyle(localState.hoveredBead.color.beadHex)")
-	div {{ localState.hoveredBead.color.beadHex }}
+	div {{ store.hoveredBead.name }}
+	.bead-info__color(:style="setStyle(store.hoveredBead.color.beadHex)")
+	div {{ store.hoveredBead.color.beadHex }}
 	div &nbsp;&nbsp; (Original
-	.bead-info__color(:style="setStyle(localState.hoveredBead.color.originalHex)") 
-	div {{ localState.hoveredBead.color.originalHex }})
+	.bead-info__color(:style="setStyle(store.hoveredBead.color.originalHex)") 
+	div {{ store.hoveredBead.color.originalHex }})
 
 div(v-else) Hello
 </template>
 
 <script>
-import { store } from "../store/beadStore";
+import store from "../store/beadStore";
 export default {
 	setup() {
-		const localState = store.state; //gotta copy the reactive object
-		console.log("Setup of Bead Info", localState);
+		console.log("Setup of Bead Info", store);
 		const hasBead = () => {
-			console.log("has bead", localState.hoveredBead);
-			return localState.hoveredBead != null;
+			console.log("has bead", store.hoveredBead);
+			return store.hoveredBead != null;
 		};
-		return { localState, hasBead };
+		return { store, hasBead };
 	},
 	methods: {
 		setStyle(color) {

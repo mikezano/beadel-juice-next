@@ -7,6 +7,7 @@ const beadStore = () => {
     beadsData: [],
     hoveredBead: null,
     hoveredColor: null,
+    selectedBead: null,
     usePerler: true,
     useHama: true,
   });

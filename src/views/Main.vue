@@ -6,29 +6,32 @@
 		</section>
 		<section class="main__grid">
 			<BeadGrid @onHover="highlightBeads" />
-			<!-- <BeadInfo /> -->
+			<BeadInfo />
 		</section>
 		<section class="main__details">
 			<!-- <Colors /> -->
 		</section>
 	</div>
+	<ColorSelector />
 </template>
 
 <script>
 import { ref } from "vue";
 import Controls from "../components/Controls";
 import BeadGrid from "../components/BeadGrid";
-//import BeadInfo from "../components/BeadInfo";
+import BeadInfo from "../components/BeadInfo";
 //import Colors from "../components/Colors";
 import Test from "../components/Test";
+import ColorSelector from "../components/ColorSelector";
 
 export default {
 	components: {
 		Controls,
 		BeadGrid,
-		//BeadInfo,
+		BeadInfo,
 		//Colors,
 		Test,
+		ColorSelector,
 	},
 	setup() {
 		const title = ref("Mike");

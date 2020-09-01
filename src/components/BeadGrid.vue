@@ -1,9 +1,9 @@
 <template>
 	<div class="bead-grid-container" ref="beadGridContainer">
-		<div class="bead-grid" ref="beadGrid" @mouseover="hoverCell">
+		<div class="bead-grid" ref="beadGrid" @mouseover="onHoverCell" @click="onSelectBead">
 			<div
 				class="bead-grid__cell"
-				v-for="bead in beadsData"
+				v-for="bead in store.beadsData"
 				:class="{
 					'bead-grid__cell--highlight': bead.highlight === true,
 				}"
@@ -18,12 +18,9 @@
 </template>
 
 <script>
-//				<~--:style="beadBGStyle(bead)"
-//import { ref } from 'vue';
 import store from "../store/beadStore";
 import {
 	ref,
-	toRefs,
 	onUpdated,
 	onMounted,
 	onRenderTriggered,
@@ -97,7 +94,7 @@ export default {
 			return result;
 		};
 
-		const hoverCell = (event) => {
+		const onHoverCell = (event) => {
 			const cellElement = event.target;
 			const { id } = cellElement.dataset;
 
@@ -108,21 +105,23 @@ export default {
 			//console.log("Saved hovered", hoveredCell);
 			store.hoveredBead = hoveredCell;
 			const { code, name } = hoveredCell;
-			console.log(
-				"Hovered on the grid",
-				hoveredCell,
-				hoveredCell.code,
-				hoveredCell.name
-			);
+
 			findMatchingBeads(code + name);
+		};
+
+		const onSelectBead = (event) => {
+			console.log("onSelectedBead", event.target);
+			const { id } = event.target.dataset;
+			console.log("ID", id);
+			const selectedBead = store.beadsData.filter((f) => f.id == id)[0];
+			console.log("Selected Bead", selectedBead);
+			store.selectedBead = selectedBead;
 		};
 
 		const findMatchingBeads = (match) => {
 			store.beadsData.map((bead) => {
-				console.log("Condition", bead.code, bead.name, match);
 				bead.highlight = bead.code + bead.name === match;
 				if (bead.highlight === true) {
-					console.log("bead being highlighted", bead);
 					bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
 				}
 				return bead;
@@ -130,8 +129,9 @@ export default {
 		};
 
 		return {
-			hoverCell,
-			...toRefs(store),
+			onHoverCell,
+			onSelectBead,
+			store,
 			generateKey,
 			beadBGStyle,
 			beadGrid,
