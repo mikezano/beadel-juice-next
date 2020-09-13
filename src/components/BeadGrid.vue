@@ -1,6 +1,11 @@
 <template>
 	<div class="bead-grid-container" ref="beadGridContainer">
-		<div class="bead-grid" ref="beadGrid" @mouseover="onHoverCell" @click="onSelectBead">
+		<div
+			class="bead-grid"
+			ref="beadGrid"
+			@mouseover="onHoverCell"
+			@click="onSelectBead"
+		>
 			<div
 				class="bead-grid__cell"
 				v-for="bead in store.beadsData"
@@ -18,52 +23,54 @@
 </template>
 
 <script>
-import store from "../store/beadStore";
+import store from '../store/beadStore';
 import {
 	ref,
+	//toRef,
 	onUpdated,
 	onMounted,
 	onRenderTriggered,
 	watch,
 	//watchEffect,
-} from "vue";
+} from 'vue';
 export default {
 	setup() {
 		const beadGrid = ref(null);
 		const beadGridContainer = ref(null);
+		//const replacementHistory = [];
 
 		watch(
 			() => store.beadsData,
 			(beadsData) => {
-				console.log("watching bead changes", beadsData);
+				console.log('watching bead changes', beadsData);
 				//console.log('current', base64);
 				//console.log('prev', prevBase64);
 				if (beadsData) {
-					console.log("container element", beadGridContainer.value);
+					console.log('container element', beadGridContainer.value);
 					console.log(
-						"container element",
-						beadGridContainer.value.getBoundingClientRect()
+						'container element',
+						beadGridContainer.value.getBoundingClientRect(),
 					);
 					console.log(
-						"container width",
-						beadGridContainer.value.clientWidth
+						'container width',
+						beadGridContainer.value.clientWidth,
 					);
 					const containerDimensions = beadGridContainer.value.getBoundingClientRect();
-					console.log("this works?", containerDimensions.width);
+					console.log('this works?', containerDimensions.width);
 
 					const width = store.imgWidth;
 					const height = store.imgHeight;
 					const size = containerDimensions.width / width;
 					console.log(
-						"this works?",
+						'this works?',
 						containerDimensions.width,
 						width,
-						height
+						height,
 					);
 					beadGrid.value.style.gridTemplateColumns = `repeat(${width}, ${size}px)`;
 					beadGrid.value.style.gridTemplateRows = `repeat(${height}, ${size}px)`;
 				}
-			}
+			},
 		);
 
 		watch(
@@ -72,12 +79,39 @@ export default {
 				const { code, name } = hoveredColor;
 
 				findMatchingBeads(code + name);
-			}
+			},
+		);
+
+		watch(
+			() => store.selectedBead,
+			() => {
+				console.log('selected bead changed, its connected');
+			},
+		);
+
+		//TODO: option to replace via original hex or current bead hex
+		watch(
+			() => store.replacementBead,
+			({ code, name, hex }) => {
+				//make SURE you get out of using a reactive reference.
+				let { beadHex: matchingColor } = store.selectedBead.color;
+				store.beadsData.forEach((bead) => {
+					let { beadHex } = bead.color;
+
+					if (beadHex === matchingColor) {
+						bead.code = code;
+						bead.name = name;
+						//important to replace at this level
+						//not at bead.color.beadHex = .... this won't work
+						bead.color = { ...bead.color, beadHex: hex };
+					}
+				});
+			},
 		);
 
 		onRenderTriggered(() => {});
 		onMounted(() => {
-			console.log("Local sotre", store);
+			console.log('Local sotre', store);
 		});
 		onUpdated(() => {});
 
@@ -88,9 +122,9 @@ export default {
 		};
 
 		const generateKey = (bead) => {
-			console.log("Generate Key", bead);
+			console.log('Generate Key', bead);
 			const result = `${bead.id}-${bead.highlight ? 1 : 0}`;
-			console.log("result", result);
+			console.log('result', result);
 			return result;
 		};
 
@@ -99,7 +133,7 @@ export default {
 			const { id } = cellElement.dataset;
 
 			const hoveredCell = store.beadsData.filter(
-				(f) => f.id.toString() === id.toString()
+				(f) => f.id.toString() === id.toString(),
 			)[0];
 
 			//console.log("Saved hovered", hoveredCell);
@@ -110,21 +144,20 @@ export default {
 		};
 
 		const onSelectBead = (event) => {
-			console.log("onSelectedBead", event.target);
+			console.log('onSelectedBead', event.target);
 			const { id } = event.target.dataset;
-			console.log("ID", id);
+			console.log('ID', id);
 			const selectedBead = store.beadsData.filter((f) => f.id == id)[0];
-			console.log("Selected Bead", selectedBead);
+			console.log('Selected Bead', selectedBead);
 			store.selectedBead = selectedBead;
 		};
 
 		const findMatchingBeads = (match) => {
-			store.beadsData.map((bead) => {
+			store.beadsData.forEach((bead) => {
 				bead.highlight = bead.code + bead.name === match;
 				if (bead.highlight === true) {
 					bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
 				}
-				return bead;
 			});
 		};
 

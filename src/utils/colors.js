@@ -1,4 +1,4 @@
-//import { store } from "../store/beadStore";
+import store from "../store/beadStore";
 //const localStore = store.state;
 const perler = require("../colors/perler.json");
 const hama = require("../colors/hama.json");
@@ -14,37 +14,6 @@ const allColors = [].concat(perler).concat(hama);
 //const nearestPerlerColor = require("nearest-human-color").from(allColorsBasicInfo);
 const chroma = require("chroma-js");
 
-//The Euclidian
-// const nearestPerlerByHex_Euclidian = hexColor => {
-// 	const hex = nearestPerlerColor(hexColor).value;
-// 	return exactPerlerByHex(hex);
-// };
-
-//hexColor comes directly off the canvas pixels
-// const closestColor = hexColor => {
-// 	let minDistance = 1000000;
-// 	let nearestPerler = null;
-// 	allColors.forEach(p => {
-// 		const currentDistance = chroma.distance(p.hex, hexColor);
-// 		const currentDistanceLAB = 0; //chroma.distance(p.hex, hexColor, "lab");
-// 		const currentDistanceHSL = 0; //chroma.distance(p.hex, hexColor, "hsl");
-// 		const currentDistanceRGB = chroma.distance(p.hex, hexColor, "rgb");
-
-// 		const totalDistance =
-// 			currentDistance +
-// 			currentDistanceLAB +
-// 			currentDistanceHSL +
-// 			currentDistanceRGB;
-
-// 		if (totalDistance < minDistance) {
-// 			minDistance = totalDistance;
-// 			nearestPerler = p;
-// 		}
-// 	});
-
-// 	return nearestPerler;
-// };
-
 const getColors = (colorSet) => {
   let colors = [];
 
@@ -56,6 +25,27 @@ const getColors = (colorSet) => {
   }
 
   return colors;
+};
+
+const getColors_ = () => {
+  let colors = [];
+  colors = colors.concat(store.usePerler ? perler : []);
+  colors = colors.concat(store.useHama ? hama : []);
+  return colors;
+};
+
+const sortedBeads = () => {
+  const beads = getColors_();
+  let beadsWithAvgRGB = beads.map((m) => {
+    let hue = chroma(m.hex).hsl()[0];
+    return { ...m, hue };
+  });
+
+  beadsWithAvgRGB.sort((a, b) => {
+    return a.hue > b.hue ? 1 : -1;
+  });
+
+  return beadsWithAvgRGB;
 };
 
 //hexColor comes directly off the canvas pixels
@@ -88,19 +78,6 @@ const closestColor = (hex, ignoreExact, ignoreList, colorSet) => {
   });
 
   return closestColor;
-};
-
-const sortedBeads = () => {
-  let beadsWithAvgRGB = allColors.map((m) => {
-    let hue = chroma(m.hex).hsl()[0];
-    return { ...m, hue };
-  });
-
-  beadsWithAvgRGB.sort((a, b) => {
-    return a.hue > b.hue ? 1 : -1;
-  });
-
-  return beadsWithAvgRGB;
 };
 
 const nearestNcolorsByHex_Chroma = (hexColor, n) => {

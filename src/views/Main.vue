@@ -9,32 +9,32 @@
 			<BeadInfo />
 		</section>
 		<section class="main__details">
-			<!-- <Colors /> -->
+			<Colors />
 		</section>
 	</div>
 	<ColorSelector />
 </template>
 
 <script>
-import { ref } from "vue";
-import Controls from "../components/Controls";
-import BeadGrid from "../components/BeadGrid";
-import BeadInfo from "../components/BeadInfo";
-//import Colors from "../components/Colors";
-import Test from "../components/Test";
-import ColorSelector from "../components/ColorSelector";
+import { ref } from 'vue';
+import Controls from '../components/Controls';
+import BeadGrid from '../components/BeadGrid';
+import BeadInfo from '../components/BeadInfo';
+import Colors from '../components/Colors';
+import Test from '../components/Test';
+import ColorSelector from '../components/ColorSelector';
 
 export default {
 	components: {
 		Controls,
 		BeadGrid,
 		BeadInfo,
-		//Colors,
+		Colors,
 		Test,
 		ColorSelector,
 	},
 	setup() {
-		const title = ref("Mike");
+		const title = ref('Mike');
 		const canvasDimensions = { height: 0, width: 0 };
 		const selectedBead = ref(null);
 

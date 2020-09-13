@@ -18,14 +18,12 @@ export default {
 	setup() {
 		console.log("Setup of Bead Info", store);
 		const hasBead = () => {
-			console.log("has bead", store.hoveredBead);
 			return store.hoveredBead != null;
 		};
 		return { store, hasBead };
 	},
 	methods: {
 		setStyle(color) {
-			console.log("Original color", color);
 			return { backgroundColor: color };
 		},
 	},

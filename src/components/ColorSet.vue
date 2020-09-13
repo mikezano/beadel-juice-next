@@ -18,7 +18,7 @@ export default {
 		};
 
 		const toggleHama = () => {
-			store.useHama.value = !store.useHama.value;
+			store.useHama = !store.useHama;
 		};
 
 		return { store, togglePerler, toggleHama };

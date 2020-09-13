@@ -7,10 +7,10 @@ img.preview__img(ref="beaded")
 </template>
 
 <script>
-import { ref, watch } from "vue"; // <-- Use this line if you're in a Vue 3 app
-import chroma from "chroma-js";
-import { rgbToHex, closestColor } from "../utils/colors";
-import store from "../store/beadStore";
+import { ref, watch } from 'vue'; // <-- Use this line if you're in a Vue 3 app
+import chroma from 'chroma-js';
+import { rgbToHex, closestColor } from '../utils/colors';
+import store from '../store/beadStore';
 
 export default {
 	props: {
@@ -25,27 +25,35 @@ export default {
 		watch(
 			() => props.workingImage.base64,
 			(base64) => {
-				console.log("watching");
+				console.log('watching');
 				//console.log('current', base64);
 				//console.log('prev', prevBase64);
 				if (base64) createPreviews(base64);
-			}
+			},
+		);
+
+		watch(
+			() => store.replacementBead,
+			() => {
+				console.log('Is this too soon ?');
+				displayBeadedImg(store.beadsData);
+			},
 		);
 
 		const createPreviews = (base64) => {
 			displayOriginalImg(base64);
 			const canvasData = drawOriginalOnCanvas();
-			console.log("generate bead");
+			console.log('generate bead');
 			const _beadsData = generateBeadsData(canvasData);
-			console.log("display beaded");
+			console.log('display beaded');
 			displayBeadedImg(_beadsData);
-			console.log("set bead data");
+			console.log('set bead data');
 
-			console.log("end preview");
+			console.log('end preview');
 			store.beadsData = _beadsData;
 			store.imgWidth = props.workingImage.imgWidth;
 			store.imgHeight = props.workingImage.imgHeight;
-			console.log("Store now", store);
+			console.log('Store now', store);
 		};
 
 		const displayOriginalImg = (base64) => {
@@ -59,7 +67,7 @@ export default {
 			canvas.height = props.workingImage.imgHeight;
 
 			//draw on the canvas with the DOM img element
-			var ctx = canvas.getContext("2d");
+			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false; //make sure its pixelated
 			ctx.drawImage(original.value, 0, 0);
@@ -112,6 +120,9 @@ export default {
 					};
 					gridData.push(previousBead);
 				}
+				if (i < 72) {
+					console.log(previousBead);
+				}
 			}
 			return gridData;
 		};
@@ -119,7 +130,7 @@ export default {
 		const displayBeadedImg = (gridData) => {
 			//re-grab the canvas
 			const canvas = beadCanvas.value;
-			const ctx = canvas.getContext("2d");
+			const ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.imageSmoothingEnabled = false;
 
