@@ -2,7 +2,6 @@
 	<div class="main">
 		<section class="main__controls">
 			<Controls />
-			<Test />
 		</section>
 		<section class="main__grid">
 			<BeadGrid @onHover="highlightBeads" />
@@ -21,7 +20,7 @@ import Controls from '../components/Controls';
 import BeadGrid from '../components/BeadGrid';
 import BeadInfo from '../components/BeadInfo';
 import Colors from '../components/Colors';
-import Test from '../components/Test';
+//import Test from '../components/Test';
 import ColorSelector from '../components/ColorSelector';
 
 export default {
@@ -30,7 +29,7 @@ export default {
 		BeadGrid,
 		BeadInfo,
 		Colors,
-		Test,
+		//Test,
 		ColorSelector,
 	},
 	setup() {

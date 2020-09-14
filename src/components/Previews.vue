@@ -21,30 +21,43 @@ export default {
 		const original = ref(null);
 		const beaded = ref(null);
 		const beadCanvas = ref(null);
+		const canvasData = ref(null);
 
 		watch(
 			() => props.workingImage.base64,
 			(base64) => {
-				console.log('watching');
-				//console.log('current', base64);
-				//console.log('prev', prevBase64);
 				if (base64) createPreviews(base64);
 			},
 		);
 
 		watch(
-			() => store.replacementBead,
+			() => store.beadDataUpdated,
+			(beadDataUpdated) => {
+				if (beadDataUpdated) {
+					displayBeadedImg(store.beadsData);
+					store.beadDataUpdated = false;
+				}
+			},
+		);
+
+		watch(
+			() => [store.usePerler, store.useHama],
 			() => {
-				console.log('Is this too soon ?');
-				displayBeadedImg(store.beadsData);
+				console.log('Regenerate');
+				const _beadsData = generateBeadsData(canvasData.value);
+				displayBeadedImg(_beadsData);
+
+				store.beadsData = _beadsData;
+				store.imgWidth = props.workingImage.imgWidth;
+				store.imgHeight = props.workingImage.imgHeight;
 			},
 		);
 
 		const createPreviews = (base64) => {
 			displayOriginalImg(base64);
-			const canvasData = drawOriginalOnCanvas();
+			canvasData.value = drawOriginalOnCanvas();
 			console.log('generate bead');
-			const _beadsData = generateBeadsData(canvasData);
+			const _beadsData = generateBeadsData(canvasData.value);
 			console.log('display beaded');
 			displayBeadedImg(_beadsData);
 			console.log('set bead data');
@@ -117,6 +130,7 @@ export default {
 						highlight: false,
 						name: beaded.name,
 						code: beaded.code,
+						brand: beaded.brand,
 					};
 					gridData.push(previousBead);
 				}

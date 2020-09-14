@@ -106,6 +106,8 @@ export default {
 						bead.color = { ...bead.color, beadHex: hex };
 					}
 				});
+
+				store.beadDataUpdated = true;
 			},
 		);
 
