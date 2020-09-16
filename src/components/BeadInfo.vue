@@ -8,8 +8,9 @@
 	div &nbsp;&nbsp; (Original
 	.bead-info__color(:style="setStyle(store.hoveredBead.color.originalHex)") 
 	div {{ store.hoveredBead.color.originalHex }})
+	.bead-info__pos Pos {{ getCoordinates() }}
 
-div(v-else) Hello
+.bead-info(v-else) &nbsp;
 </template>
 
 <script>
@@ -20,7 +21,24 @@ export default {
 		const hasBead = () => {
 			return store.hoveredBead != null;
 		};
-		return { store, hasBead };
+
+		const getCoordinates = () => {
+			const { code: _code, name: _name } = store.hoveredBead;
+			const matchId = `${_code}-${_name}`;
+			//let matchIndex = 0;
+			console.log("match id", matchId, store.beadsData.length);
+
+			const matchIndex = store.beadsData.findIndex(({ id }) => {
+				return id === store.hoveredBead.id;
+			});
+
+			const x = Math.floor(matchIndex / store.imgHeight) + 1;
+			const y = (matchIndex % store.imgWidth) + 1;
+			console.log("XY", x, y);
+			return `(${x},${y})`;
+		};
+
+		return { store, hasBead, getCoordinates };
 	},
 	methods: {
 		setStyle(color) {
@@ -34,13 +52,18 @@ export default {
 .bead-info {
 	display: flex;
 	align-items: center;
-	padding: 1rem;
+	padding: 0.4rem;
+	font-size: 0.8rem;
 
 	&__color {
 		width: 1.5rem;
 		height: 1.5rem;
 		margin: 0 0.5rem;
 		border: 1px solid white;
+	}
+
+	&__pos {
+		margin-left: auto;
 	}
 }
 </style>

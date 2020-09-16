@@ -47,13 +47,13 @@ export default {
 		const distribution = () => {
 			//const types = { perler: 0, hama: 0 };
 			store.beadsData.forEach((bead) => {
+				if (bead.name === 'Black') return;
 				switch (bead.brand) {
 					case 'PERLER':
 						types.perler++;
 						break;
 					case 'Hama':
-						if (bead.name === 'Black') types.perler++;
-						else types.hama++;
+						types.hama++;
 						break;
 					default:
 						break;
