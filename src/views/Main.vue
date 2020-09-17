@@ -3,8 +3,9 @@
 		<section class="main__controls">
 			<Controls />
 		</section>
-		<section class="main__grid">
-			<BeadGrid @onHover="highlightBeads" />
+		<section class="main__grid" ref="gridContainer">
+			<FabricGrid :container="gridContainer" />
+			<!-- <BeadGrid @onHover="highlightBeads" /> -->
 			<BeadInfo />
 		</section>
 		<section class="main__details">
@@ -17,23 +18,26 @@
 <script>
 import { ref } from 'vue';
 import Controls from '../components/Controls';
-import BeadGrid from '../components/BeadGrid';
+//import BeadGrid from '../components/BeadGrid';
 import BeadInfo from '../components/BeadInfo';
 import Colors from '../components/Colors';
 //import Test from '../components/Test';
+import FabricGrid from '../components/FabricGrid';
 import ColorSelector from '../components/ColorSelector';
 
 export default {
 	components: {
 		Controls,
-		BeadGrid,
+		//BeadGrid,
 		BeadInfo,
 		Colors,
 		//Test,
+		FabricGrid,
 		ColorSelector,
 	},
 	setup() {
 		const title = ref('Mike');
+		const gridContainer = ref(null);
 		const canvasDimensions = { height: 0, width: 0 };
 		const selectedBead = ref(null);
 
@@ -42,6 +46,7 @@ export default {
 		};
 
 		return {
+			gridContainer,
 			selectedBead,
 			highlightBeads,
 			title,

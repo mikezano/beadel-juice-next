@@ -134,9 +134,6 @@ export default {
 					};
 					gridData.push(previousBead);
 				}
-				if (i < 72) {
-					console.log(previousBead);
-				}
 			}
 			return gridData;
 		};
