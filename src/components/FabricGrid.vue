@@ -26,7 +26,9 @@ export default {
 				// const canvas = new fabric.Canvas('c', {
 				// 	imageSmoothingEnabled: false,
 				// });
-				canvas = new fabric.Canvas('c');
+				canvas = new fabric.Canvas('c', {
+					imageSmoothingEnabled: false,
+				});
 				console.log('Something in container', width, canvas);
 				canvas.setWidth(width);
 				canvas.setHeight(600);
@@ -43,22 +45,36 @@ export default {
 			() => {
 				beadSize.value = canvasWidth.value / store.imgWidth;
 				console.log('Beadsize', beadSize);
-				drawBeads();
+				initializeGrid();
 			},
 		);
 
 		watch(
 			() => store.hoveredBead,
 			({ code, name }) => {
-				findMatchingBeads(code + name);
+				highlightBeads(code + name);
 			},
 		);
 
-		const drawBeads = () => {
-			// const canvas = new fabric.Canvas('c', {
-			// 	imageSmoothingEnabled: false,
-			// });
+		const highlightBeads = (matchingBead) => {
+			const objs = canvas.getObjects();
 
+			objs.forEach((item) => {
+				if (item.code + item.name !== matchingBead) {
+					item.set('stroke', 'black');
+					item.set('strokeWidth', 1);
+				}
+			});
+			objs.forEach((item) => {
+				if (item.code + item.name === matchingBead) {
+					item.set('stroke', 'white');
+					item.set('strokeWidth', 1);
+				}
+			});
+		};
+
+		const initializeGrid = () => {
+			console.log('init beads');
 			store.beadsData.forEach((bead, i) => {
 				const x = Math.floor(i / store.imgWidth);
 				const y = i % store.imgHeight;
@@ -70,12 +86,17 @@ export default {
 					width: beadSize.value,
 					height: beadSize.value,
 					id: bead.id,
+					code: bead.code,
+					name: bead.name,
 				});
 
-				if (bead.highlight) {
-					rect.set('stroke', 'white');
-					rect.set('strokeWidth', 1);
-				}
+				// if (bead.highlight) {
+				// 	rect.set('stroke', 'white');
+				// 	rect.set('strokeWidth', 1);
+				// } else {
+				// 	rect.set('stroke', 'black');
+				// 	rect.set('strokeWidth', 1);
+				// }
 
 				canvas.add(rect);
 			});
@@ -86,21 +107,20 @@ export default {
 				const bead = store.beadsData.filter(
 					({ id }) => id === beadId,
 				)[0];
-				store.hoveredBead = bead;
-				console.log('Mousing over canvas', bead);
-				//canvas.renderAll();
-			});
-		};
 
-		const findMatchingBeads = (match) => {
-			store.beadsData.forEach((bead) => {
-				bead.highlight = bead.code + bead.name === match;
-				if (bead.highlight === true) {
-					bead.key = `${bead.id}-${bead.highlight ? 1 : 0}`;
+				if (store.hoveredBead === null) {
+					store.hoveredBead = bead;
+					return;
+				}
+
+				const { code: _code, name: _name } = store.hoveredBead;
+				if (
+					_code + _name === bead.code + bead.name ||
+					store.hoveredBead
+				) {
+					store.hoveredBead = bead;
 				}
 			});
-
-			drawBeads();
 		};
 
 		onMounted(() => {
