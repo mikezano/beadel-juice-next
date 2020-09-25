@@ -3,6 +3,7 @@
 		<FileLoad :afterLoad="displayOriginal" />
 		<Previews :workingImage="state" />
 		<ColorSet />
+		<Sizing />
 	</div>
 </template>
 
@@ -13,6 +14,7 @@ import { reactive } from "vue"; // <-- Use this line if you're in a Vue 3 app
 import FileLoad from "./FileLoad";
 import Previews from "./Previews";
 import ColorSet from "./ColorSet";
+import Sizing from "./Sizing";
 
 export default {
 	props: {
@@ -22,6 +24,7 @@ export default {
 		FileLoad,
 		Previews,
 		ColorSet,
+		Sizing,
 	},
 	setup() {
 		//const base64 = ref("");

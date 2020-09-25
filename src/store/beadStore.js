@@ -12,6 +12,7 @@ const beadStore = () => {
     replacementBead: null,
     usePerler: true,
     useHama: true,
+    sizingMethod: "Auto",
   });
 
   return store;

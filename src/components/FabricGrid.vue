@@ -1,12 +1,12 @@
 <template lang="pug">
-#wrapper
+#wrapper(ref="wrapperEl")
 	canvas#c(ref="canvasEl")
 </template>
 
 <script>
-import { ref, watch } from "vue";
-import { fabric } from "fabric";
-import store from "../store/beadStore";
+import { ref, watch, onMounted } from 'vue';
+import { fabric } from 'fabric';
+import store from '../store/beadStore';
 export default {
 	props: {
 		container: HTMLElement,
@@ -14,56 +14,72 @@ export default {
 	setup(props) {
 		//console.log('Setup of Canvas', props.container);
 		const canvasEl = ref(null);
+		const wrapperEl = ref(null);
 		const canvasWidth = ref(0);
-		const beadSize = ref(0);
+		const beadSize = ref(10);
 		let canvas = null;
 
+		const onScroll = ({ target }) => {
+			console.log('onScroll', target.scrollLeft, target.scrollTop);
+		};
+		onMounted(() => {
+			wrapperEl.value.addEventListener('scroll', onScroll);
+		});
 		watch(
 			() => props.container,
 			() => {
 				const { clientWidth: width } = props.container;
 				canvasWidth.value = width;
-				canvas = new fabric.Canvas("c", {
+				canvas = new fabric.Canvas('c', {
 					imageSmoothingEnabled: false,
-					//width: width,
-					//height: 600,
+					selection: false,
 				});
 				canvas.renderAll();
-			}
+			},
 		);
 
 		watch(
 			() => store.beadsData,
 			() => {
-				beadSize.value = Math.floor(canvasWidth.value / store.imgWidth);
-				console.log(
-					"Beadsize",
-					beadSize,
-					canvasWidth.value,
-					store.imgWidth
-				);
-				canvas.setWidth(beadSize.value * store.imgWidth);
-				canvas.setHeight(beadSize.value * store.imgHeight);
+				setBeadSize();
 				initializeGrid();
-			}
+			},
 		);
+
+		const setBeadSize = () => {
+			const estimatedSize = Math.floor(
+				canvasWidth.value / store.imgWidth,
+			);
+			beadSize.value = estimatedSize < 20 ? 20 : estimatedSize;
+			console.log(
+				'Beadsize',
+				beadSize,
+				canvasWidth.value,
+				store.imgWidth,
+			);
+		};
 
 		watch(
 			() => store.hoveredBead,
 			({ code, name }) => {
 				highlightBeads(code + name);
-			}
+			},
 		);
 
 		watch(
 			() => store.replacementBead,
 			({ code, name, hex }) => {
+				console.log(
+					'Selected replacement',
+					store.replacementBead,
+					store.selectedBead,
+				);
 				//make SURE you get out of using a reactive reference.
 				let { beadHex: matchingColor } = store.selectedBead.color;
 				const objs = canvas.getObjects();
 				objs.forEach((item) => {
 					if (item.vueBead.color.beadHex === matchingColor) {
-						console.log("would be replaced", item.vueBead);
+						console.log('would be replaced', item.vueBead);
 						item.vueBead.code = code;
 						item.vueBead.name = name;
 						//important to replace at this level
@@ -73,12 +89,12 @@ export default {
 							beadHex: hex,
 						};
 
-						item.set("fill", hex);
+						item.set('fill', hex);
 					}
 				});
 				store.beadDataUpdated = true;
 				canvas.renderAll();
-			}
+			},
 		);
 
 		watch(
@@ -87,7 +103,7 @@ export default {
 				const { code, name } = hoveredColor;
 
 				highlightBeads(code + name);
-			}
+			},
 		);
 
 		const highlightBeads = (matchingBead) => {
@@ -98,12 +114,12 @@ export default {
 					(matchingBead === null) |
 					(item.code + item.name !== matchingBead)
 				) {
-					item.set("stroke", "black");
-					item.set("strokeDashArray", [0]);
+					item.set('stroke', 'black');
+					item.set('strokeDashArray', [0]);
 					canvas.sendToBack(item);
 				} else {
-					item.set("stroke", "white");
-					item.set("strokeDashArray", [2]);
+					item.set('stroke', 'white');
+					item.set('strokeDashArray', [2]);
 					canvas.bringToFront(item);
 				}
 			});
@@ -122,7 +138,7 @@ export default {
 			const { code: c, name: n } = store.hoveredBead;
 			//only update if the hovered bead is new
 			if (c + n !== bead.code + bead.name) {
-				console.log("actual change");
+				console.log('actual change');
 				store.hoveredBead = bead;
 			}
 
@@ -132,6 +148,7 @@ export default {
 		const onMouseClick = (e) => {
 			const { id: beadId } = e.target;
 			const bead = store.beadsData.filter(({ id }) => id === beadId)[0];
+			console.log('bead selected', bead);
 			store.selectedBead = bead;
 		};
 
@@ -141,14 +158,19 @@ export default {
 
 		const initializeGrid = () => {
 			console.log(
-				"init beads",
+				'init beads',
 				store.beadsData.length,
 				store.imgWidth,
 				store.imgHeight,
-				beadSize.value
+				beadSize.value,
 			);
 
 			canvas.clear();
+			canvas.setWidth(beadSize.value * store.imgWidth);
+			canvas.setHeight(beadSize.value * store.imgHeight);
+			//canvas.setWidth(400);
+			//canvas.setHeight(400);
+
 			store.beadsData.forEach((bead, i) => {
 				//const cfactor = store.imgHeight % 2 == 0 ? 1 : 0;
 				//const rfactor = store.imgWidth % 2 == 0 ? 1 : 0;
@@ -156,15 +178,15 @@ export default {
 				const row = Math.floor(i / store.imgWidth);
 				if (i < 131) {
 					console.log(
-						"r:",
+						'r:',
 						row,
-						"c:",
+						'c:',
 						column,
-						"i:",
+						'i:',
 						i,
-						"dim:",
+						'dim:',
 						store.imgWidth,
-						store.imgHeight
+						store.imgHeight,
 					);
 				}
 
@@ -177,18 +199,18 @@ export default {
 					id: bead.id,
 					code: bead.code,
 					name: bead.name,
-					stroke: "black",
+					stroke: 'black',
 					selectable: false,
 					vueBead: bead,
-					hoverCursor: "pointer",
+					hoverCursor: 'pointer',
 				});
 
 				canvas.add(rect);
 			});
 
 			//canvas.renderAll();
-			canvas.on("mouse:over", onMouseOver);
-			canvas.on("mouse:up", onMouseClick);
+			canvas.on('mouse:over', onMouseOver);
+			canvas.on('mouse:up', onMouseClick);
 			//canvas.on('mouse:out', onMouseOut);
 		};
 
@@ -210,7 +232,7 @@ export default {
 		// 	canvas.add(rect);
 		// });
 
-		return { canvasEl };
+		return { canvasEl, wrapperEl };
 	},
 };
 </script>
@@ -223,12 +245,13 @@ export default {
 }
 #wrapper {
 	position: relative;
-	flex: 1;
-	//width: 500px;
+	flex: auto;
+	width: calc(100vw - 30rem);
+	height: 200px;
 	display: flex;
 	align-content: center;
 	align-items: center;
-	overflow: auto;
+	overflow: scroll;
 	//padding: 1rem;
 	border: 1px solid #555;
 	background-color: #888;

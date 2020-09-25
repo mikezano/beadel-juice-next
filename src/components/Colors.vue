@@ -3,11 +3,16 @@
 	.colors__title Color List
 	.colors__list-container
 		ul.colors__list
+			//data-beadHex gets converted into beadHex by html
 			li.colors__bead(
 				v-for="bead in mappedBeads",
+				@click="onSelectBead",
 				@mouseover="highlightBeads",
 				:key="bead.id",
-				:data-code-name="bead.code + bead.name"
+				:data-code-name="bead.code + bead.name",
+				:data-code="bead.code",
+				:data-name="bead.name",
+				:data-beadhex="bead.color.beadHex"
 			)
 				.colors__color(:style="bgColor(bead)")
 				.colors__code ({{ bead.code }}) -
@@ -16,8 +21,8 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
-import store from '../store/beadStore';
+import { ref, watch } from "vue";
+import store from "../store/beadStore";
 export default {
 	setup() {
 		//const localState = store.state;
@@ -25,6 +30,19 @@ export default {
 
 		const getId = (bead) => {
 			return `${bead.code}-${bead.name}`;
+		};
+
+		const onSelectBead = (event) => {
+			//const { id } = event.target.dataset;
+			const {
+				code,
+				name,
+				beadhex: beadHex,
+			} = event.currentTarget.dataset;
+			//console.log('ID', id);
+			//const selectedBead = store.beadsData.filter((f) => f.id == id)[0];
+			//console.log("Selected Bead", selectedBead);
+			store.selectedBead = { code, name, color: { beadHex } };
 		};
 
 		const calculateBeadCounts = (beadsData) => {
@@ -39,7 +57,7 @@ export default {
 					mappedBeads.value.push(newItem);
 				} else {
 					const indexOfColor = mappedBeads.value.findIndex(
-						(f) => getId(f) === getId(bead),
+						(f) => getId(f) === getId(bead)
 					);
 					mappedBeads.value[indexOfColor].count++;
 				}
@@ -51,7 +69,7 @@ export default {
 			() => [store.beadsData, store.replacementBead],
 			([beadsData]) => {
 				calculateBeadCounts(beadsData);
-			},
+			}
 		);
 
 		const bgColor = (bead) => {
@@ -60,16 +78,16 @@ export default {
 
 		const highlightBeads = (e) => {
 			//https://github.com/vuejs/vue/issues/2236
-			const codeName = e.currentTarget.classList.contains('.colors')
+			const codeName = e.currentTarget.classList.contains(".colors")
 				? null
 				: e.currentTarget.dataset.codeName;
 
 			let hoveredColor = mappedBeads.value.filter(
-				(bead) => bead.code + bead.name === codeName,
+				(bead) => bead.code + bead.name === codeName
 			)[0];
 			store.hoveredColor = hoveredColor;
 		};
-		return { mappedBeads, bgColor, highlightBeads };
+		return { mappedBeads, bgColor, highlightBeads, onSelectBead };
 	},
 };
 </script>
