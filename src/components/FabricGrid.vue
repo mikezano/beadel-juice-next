@@ -4,9 +4,9 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from 'vue';
-import { fabric } from 'fabric';
-import store from '../store/beadStore';
+import { ref, reactive, watch, onMounted } from "vue";
+import { fabric } from "fabric";
+import store from "../store/beadStore";
 export default {
 	props: {
 		container: HTMLElement,
@@ -17,25 +17,32 @@ export default {
 		const wrapperEl = ref(null);
 		const canvasWidth = ref(0);
 		const beadSize = ref(10);
+		const scrollPos = reactive({ left: 0, top: 0 });
+		const groups = reactive([]);
+		const previousBeads = reactive([]);
 		let canvas = null;
 
 		const onScroll = ({ target }) => {
-			console.log('onScroll', target.scrollLeft, target.scrollTop);
+			console.log("onScroll", target.scrollLeft, target.scrollTop);
+			scrollPos.left = target.scrollLeft;
+			scrollPos.top = target.scrollTop;
 		};
 		onMounted(() => {
-			wrapperEl.value.addEventListener('scroll', onScroll);
+			console.log("mounted wrapperEl", wrapperEl.value.clientWidth);
+			wrapperEl.value.addEventListener("scroll", onScroll);
 		});
 		watch(
 			() => props.container,
 			() => {
 				const { clientWidth: width } = props.container;
 				canvasWidth.value = width;
-				canvas = new fabric.Canvas('c', {
+				canvas = new fabric.Canvas("c", {
 					imageSmoothingEnabled: false,
 					selection: false,
+					renderOnAddRemove: false,
 				});
 				canvas.renderAll();
-			},
+			}
 		);
 
 		watch(
@@ -43,19 +50,19 @@ export default {
 			() => {
 				setBeadSize();
 				initializeGrid();
-			},
+			}
 		);
 
 		const setBeadSize = () => {
 			const estimatedSize = Math.floor(
-				canvasWidth.value / store.imgWidth,
+				canvasWidth.value / store.imgWidth
 			);
 			beadSize.value = estimatedSize < 20 ? 20 : estimatedSize;
 			console.log(
-				'Beadsize',
+				"Beadsize",
 				beadSize,
 				canvasWidth.value,
-				store.imgWidth,
+				store.imgWidth
 			);
 		};
 
@@ -63,23 +70,23 @@ export default {
 			() => store.hoveredBead,
 			({ code, name }) => {
 				highlightBeads(code + name);
-			},
+			}
 		);
 
 		watch(
 			() => store.replacementBead,
 			({ code, name, hex }) => {
 				console.log(
-					'Selected replacement',
+					"Selected replacement",
 					store.replacementBead,
-					store.selectedBead,
+					store.selectedBead
 				);
 				//make SURE you get out of using a reactive reference.
 				let { beadHex: matchingColor } = store.selectedBead.color;
 				const objs = canvas.getObjects();
 				objs.forEach((item) => {
 					if (item.vueBead.color.beadHex === matchingColor) {
-						console.log('would be replaced', item.vueBead);
+						console.log("would be replaced", item.vueBead);
 						item.vueBead.code = code;
 						item.vueBead.name = name;
 						//important to replace at this level
@@ -89,12 +96,12 @@ export default {
 							beadHex: hex,
 						};
 
-						item.set('fill', hex);
+						item.set("fill", hex);
 					}
 				});
 				store.beadDataUpdated = true;
 				canvas.renderAll();
-			},
+			}
 		);
 
 		watch(
@@ -103,30 +110,73 @@ export default {
 				const { code, name } = hoveredColor;
 
 				highlightBeads(code + name);
-			},
+			}
 		);
 
+		// const isVisible = (viewBox, x, y) => {
+		// 	return (
+		// 		x >= viewBox.left &&
+		// 		x <= viewBox.right &&
+		// 		y >= viewBox.top &&
+		// 		y <= viewBox.bottom
+		// 	);
+		// };
+
 		const highlightBeads = (matchingBead) => {
-			const objs = canvas.getObjects();
-			console.log(matchingBead);
-			objs.forEach((item) => {
-				if (
-					(matchingBead === null) |
-					(item.code + item.name !== matchingBead)
-				) {
-					item.set('stroke', 'black');
-					item.set('strokeDashArray', [0]);
+			//const objs = canvas.getObjects();
+
+			//clear the previousBeads
+			if (previousBeads.value)
+				previousBeads.value.forEach((item) => {
+					item.set("stroke", "black");
+					item.set("strokeDashArray", [0]);
 					canvas.sendToBack(item);
-				} else {
-					item.set('stroke', 'white');
-					item.set('strokeDashArray', [2]);
-					canvas.bringToFront(item);
-				}
+				});
+
+			const nextBeads = canvas._objects.filter(
+				(obj) => obj.code + obj.name === matchingBead
+			);
+			previousBeads.value = nextBeads;
+
+			console.log("nextbeads", matchingBead, nextBeads.length);
+
+			// const viewBox = {
+			// 	left: scrollPos.left,
+			// 	right: scrollPos.left + wrapperEl.value.clientWidth,
+			// 	top: scrollPos.top,
+			// 	bottom: scrollPos.top + wrapperEl.value.clientHeight,
+			// };
+
+			nextBeads.forEach((item) => {
+				//figure out the visible range
+				//if (!isVisible(viewBox, item.left, item.top)) return;
+
+				item.set("stroke", "white");
+				item.set("strokeDashArray", [2]);
+				canvas.bringToFront(item);
+
+				// if (
+				// 	matchingBead === null ||
+				// 	item.code + item.name !== matchingBead
+				// ) {
+				// 	item.set("stroke", "black");
+				// 	item.set("strokeDashArray", [0]);
+				// 	canvas.sendToBack(item);
+				// } else {
+				// 	item.set("stroke", "white");
+				// 	item.set("strokeDashArray", [2]);
+				// 	canvas.bringToFront(item);
+				// }
+				//item.visible = true;
 			});
 			canvas.renderAll();
 		};
 
-		const onMouseOver = (e) => {
+		const onMouseOver = (e, x) => {
+			//console.log("mouse over", e);
+			//const result = canvas.getPointer(e);
+			console.log("Mouse Over", e.target, x);
+
 			const { id: beadId } = e.target;
 			const bead = store.beadsData.filter(({ id }) => id === beadId)[0];
 
@@ -138,8 +188,12 @@ export default {
 			const { code: c, name: n } = store.hoveredBead;
 			//only update if the hovered bead is new
 			if (c + n !== bead.code + bead.name) {
-				console.log('actual change');
 				store.hoveredBead = bead;
+				console.log(
+					"store.hoveredBead",
+					store.hoveredBead.code,
+					store.hoveredBead.name
+				);
 			}
 
 			//console.log('hover');
@@ -148,7 +202,7 @@ export default {
 		const onMouseClick = (e) => {
 			const { id: beadId } = e.target;
 			const bead = store.beadsData.filter(({ id }) => id === beadId)[0];
-			console.log('bead selected', bead);
+			console.log("bead selected", bead);
 			store.selectedBead = bead;
 		};
 
@@ -158,37 +212,23 @@ export default {
 
 		const initializeGrid = () => {
 			console.log(
-				'init beads',
+				"init beads",
 				store.beadsData.length,
 				store.imgWidth,
 				store.imgHeight,
-				beadSize.value,
+				beadSize.value
 			);
 
 			canvas.clear();
 			canvas.setWidth(beadSize.value * store.imgWidth);
 			canvas.setHeight(beadSize.value * store.imgHeight);
-			//canvas.setWidth(400);
-			//canvas.setHeight(400);
 
+			//let groups = [];
 			store.beadsData.forEach((bead, i) => {
 				//const cfactor = store.imgHeight % 2 == 0 ? 1 : 0;
 				//const rfactor = store.imgWidth % 2 == 0 ? 1 : 0;
 				const column = i % store.imgWidth;
 				const row = Math.floor(i / store.imgWidth);
-				if (i < 131) {
-					console.log(
-						'r:',
-						row,
-						'c:',
-						column,
-						'i:',
-						i,
-						'dim:',
-						store.imgWidth,
-						store.imgHeight,
-					);
-				}
 
 				const rect = new fabric.Rect({
 					top: row * beadSize.value,
@@ -199,19 +239,58 @@ export default {
 					id: bead.id,
 					code: bead.code,
 					name: bead.name,
-					stroke: 'black',
+					stroke: "black",
 					selectable: false,
 					vueBead: bead,
-					hoverCursor: 'pointer',
+					hoverCursor: "pointer",
 				});
+
+				rect.on("mousedown", onMouseOver);
+				rect.on("mousedown", onMouseOver);
+				rect.on("mouse:move", onMouseOver);
+				rect.on("mouse:down", onMouseOver);
+				const groupName = bead.code + bead.name;
+				const groupIndex = groups.findIndex(
+					({ name }) => name === groupName
+				);
+
+				if (groupIndex >= 0) {
+					groups[groupIndex].groupItems.push(rect);
+				} else {
+					console.log("Creating new group: ", groupName);
+					const newGroup = {
+						name: groupName,
+						groupItems: [],
+					};
+					newGroup.groupItems.push(rect);
+					groups.push(newGroup);
+					console.log("Done creating group");
+				}
 
 				canvas.add(rect);
 			});
 
+			// groups.forEach(({ name, groupItems }) => {
+			// 	const fabricGroup = new fabric.Group(groupItems, {
+			// 		name,
+			// 		selectable: false,
+			// 		//evented: false,
+			// 	});
+			// 	//fabricGroup.on('mouse:move', onMouseOver);
+			// 	// fabricGroup.on('mousedown', onMouseOver);
+			// 	// fabricGroup.on('mousedown', onMouseOver);
+			// 	// fabricGroup.on('mouse:move', onMouseOver);
+			// 	// fabricGroup.on('mouse:down', onMouseOver);
+			// 	canvas.add(fabricGroup);
+			// });
+
 			//canvas.renderAll();
-			canvas.on('mouse:over', onMouseOver);
-			canvas.on('mouse:up', onMouseClick);
-			//canvas.on('mouse:out', onMouseOut);
+			//canvas.on('mouse:move', onMouseOver);
+			canvas.on("mouse:move", onMouseOver);
+			canvas.on("mouse:up", onMouseClick);
+			//canvas.on('object:over', onMouseOver);
+
+			console.log("End of init");
 		};
 
 		// onMounted(() => {

@@ -23,10 +23,8 @@ export default {
 		};
 
 		const getCoordinates = () => {
-			const { code: _code, name: _name } = store.hoveredBead;
-			const matchId = `${_code}-${_name}`;
-			//let matchIndex = 0;
-			console.log("match id", matchId, store.beadsData.length);
+			//const { code: _code, name: _name } = store.hoveredBead;
+			//const matchId = `${_code}-${_name}`;
 
 			const matchIndex = store.beadsData.findIndex(({ id }) => {
 				return id === store.hoveredBead.id;
@@ -34,7 +32,7 @@ export default {
 
 			const x = Math.floor(matchIndex / store.imgHeight) + 1;
 			const y = (matchIndex % store.imgWidth) + 1;
-			console.log("XY", x, y);
+
 			return `(${x},${y})`;
 		};
 
