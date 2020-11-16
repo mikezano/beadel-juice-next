@@ -131,6 +131,7 @@ export default {
 						name: beaded.name,
 						code: beaded.code,
 						brand: beaded.brand,
+						isVisible: true
 					};
 					gridData.push(previousBead);
 				}

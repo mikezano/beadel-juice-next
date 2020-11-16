@@ -23,54 +23,62 @@
 </template>
 
 <script>
-import store from '../store/beadStore';
+import store from "../store/beadStore";
 import {
 	ref,
+	reactive,
 	//toRef,
 	onUpdated,
 	onMounted,
 	onRenderTriggered,
 	watch,
 	//watchEffect,
-} from 'vue';
+} from "vue";
 export default {
+	props: {
+		container: HTMLElement,
+	},
 	setup() {
 		const beadGrid = ref(null);
 		const beadGridContainer = ref(null);
+		const beadSize = ref(10);
+		const canvasWidth = ref(0);
+		const scrollPos = reactive({ left: 0, top: 0 });
 		//const replacementHistory = [];
 
 		watch(
 			() => store.beadsData,
 			(beadsData) => {
-				console.log('watching bead changes', beadsData);
+				setBeadSize();
+				console.log("watching bead changes", beadsData);
 				//console.log('current', base64);
 				//console.log('prev', prevBase64);
 				if (beadsData) {
-					console.log('container element', beadGridContainer.value);
+					console.log("container element", beadGridContainer.value);
 					console.log(
-						'container element',
-						beadGridContainer.value.getBoundingClientRect(),
+						"container element",
+						beadGridContainer.value.getBoundingClientRect()
 					);
 					console.log(
-						'container width',
-						beadGridContainer.value.clientWidth,
+						"container width",
+						beadGridContainer.value.clientWidth
 					);
 					const containerDimensions = beadGridContainer.value.getBoundingClientRect();
-					console.log('this works?', containerDimensions.width);
+					console.log("this works?", containerDimensions.width);
 
 					const width = store.imgWidth;
 					const height = store.imgHeight;
-					const size = containerDimensions.width / width;
+
 					console.log(
-						'this works?',
+						"this works?",
 						containerDimensions.width,
 						width,
-						height,
+						height
 					);
-					beadGrid.value.style.gridTemplateColumns = `repeat(${width}, ${size}px)`;
-					beadGrid.value.style.gridTemplateRows = `repeat(${height}, ${size}px)`;
+					beadGrid.value.style.gridTemplateColumns = `repeat(${width}, ${beadSize.value}px)`;
+					beadGrid.value.style.gridTemplateRows = `repeat(${height}, ${beadSize.value}px)`;
 				}
-			},
+			}
 		);
 
 		watch(
@@ -79,14 +87,14 @@ export default {
 				const { code, name } = hoveredColor;
 
 				findMatchingBeads(code + name);
-			},
+			}
 		);
 
 		watch(
 			() => store.selectedBead,
 			() => {
-				console.log('selected bead changed, its connected');
-			},
+				console.log("selected bead changed, its connected");
+			}
 		);
 
 		//TODO: option to replace via original hex or current bead hex
@@ -108,14 +116,56 @@ export default {
 				});
 
 				store.beadDataUpdated = true;
-			},
+			}
 		);
+
+		const onScroll = ({ target }) => {
+
+			scrollPos.left = target.scrollLeft;
+			scrollPos.top = target.scrollTop;
+			scrollPos.right = scrollPos.left + beadGridContainer.value.clientWidth;
+			scrollPos.bottom = scrollPos.top + beadGridContainer.value.clientHeight;
+			console.log("onScroll", scrollPos);
+			store.beadsData.forEach((bead, i) =>{
+				const column = i % store.imgWidth;
+				const row = Math.floor(i / store.imgWidth);
+				//console.log("x,y", row, column);
+				const result = isVisible(scrollPos, row, column);
+				
+				bead.isVisible = result;
+				if(row < 40 && column < 40){
+					console.log(row, column, bead);
+				}
+				//Get the x pos,
+				//Get the y pos
+				//Compare to see if it should be visibe
+				//set to true or false
+			});
+			//console.log("Beads", store.beadsData.length);
+			//console.log("Visible", store.beadsData.filter(f=>f.isVisible));
+		};
 
 		onRenderTriggered(() => {});
 		onMounted(() => {
-			console.log('Local sotre', store);
+			console.log("Local sotre", store);
+			beadGridContainer.value.addEventListener("scroll", onScroll);
 		});
 		onUpdated(() => {});
+
+		const isVisible = (viewBox, x, y) => {
+			const _x = x * beadSize.value;
+			const _y = y * beadSize.value; 
+			return (
+				_x >= viewBox.left &&
+				_x <= viewBox.right &&
+				_y >= viewBox.top &&
+				_y <= viewBox.bottom
+			);
+		};
+		//36, 32
+		// const isVisible = (bead) =>{
+		// 	return bead.name === "Black" ? false : true;
+		// };
 
 		const beadBGStyle = (bead) => {
 			return {
@@ -123,10 +173,23 @@ export default {
 			};
 		};
 
+		const setBeadSize = () => {
+			const estimatedSize = Math.floor(
+				canvasWidth.value / store.imgWidth
+			);
+			beadSize.value = estimatedSize < 20 ? 20 : estimatedSize;
+			// console.log(
+			// 	'Beadsize',
+			// 	beadSize,
+			// 	canvasWidth.value,
+			// 	store.imgWidth,
+			// );
+		};
+
 		const generateKey = (bead) => {
-			console.log('Generate Key', bead);
+			console.log("Generate Key", bead);
 			const result = `${bead.id}-${bead.highlight ? 1 : 0}`;
-			console.log('result', result);
+			console.log("result", result);
 			return result;
 		};
 
@@ -135,7 +198,7 @@ export default {
 			const { id } = cellElement.dataset;
 
 			const hoveredCell = store.beadsData.filter(
-				(f) => f.id.toString() === id.toString(),
+				(f) => f.id.toString() === id.toString()
 			)[0];
 
 			//console.log("Saved hovered", hoveredCell);
@@ -146,11 +209,11 @@ export default {
 		};
 
 		const onSelectBead = (event) => {
-			console.log('onSelectedBead', event.target);
+			console.log("onSelectedBead", event.target);
 			const { id } = event.target.dataset;
-			console.log('ID', id);
+			console.log("ID", id);
 			const selectedBead = store.beadsData.filter((f) => f.id == id)[0];
-			console.log('Selected Bead', selectedBead);
+			console.log("Selected Bead", selectedBead);
 			store.selectedBead = selectedBead;
 		};
 

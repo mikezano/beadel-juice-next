@@ -5,7 +5,7 @@
 		</section>
 		<section class="main__grid" ref="gridContainer">
 			<FabricGrid :container="gridContainer" />
-			<!-- <BeadGrid @onHover="highlightBeads" /> -->
+			<!-- <BeadGrid @onHover="highlightBeads" :container="gridContainer" /> -->
 			<BeadInfo />
 		</section>
 		<section class="main__details">
@@ -75,6 +75,7 @@ $headerHeight: 4rem;
 		flex: 1;
 		display: flex;
 		flex-direction: column;
+		width: calc(100vw - 30rem);
 	}
 
 	//Get rid of these

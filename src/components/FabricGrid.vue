@@ -172,6 +172,8 @@ export default {
 			canvas.renderAll();
 		};
 
+
+
 		const onMouseOver = (e, x) => {
 			//console.log("mouse over", e);
 			//const result = canvas.getPointer(e);
