@@ -52,8 +52,9 @@ const sortedBeads = () => {
 const closestColor = (hex, ignoreExact, ignoreList, colorSet) => {
   let minDistance = 1000000;
   let closestColor = null;
+  console.log(colorSet);
   const colors = getColors(colorSet);
-  //console.log("usable colors", colors, localStore, colorSet);
+  console.log("usable colors", colors, colorSet);
   colors.forEach((p) => {
     if (
       (p.hex.toLowerCase() === hex && ignoreExact) ||

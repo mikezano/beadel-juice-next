@@ -21,7 +21,7 @@
 <script>
 import { ref, watch } from "vue";
 import store from "../store/beadStore";
-import { sortedBeads } from "../utils/colors";
+import { sortedBeads, closestColor, allColors } from "../utils/colors";
 
 export default {
   setup(props, context) {
@@ -91,12 +91,34 @@ export default {
     };
 
     const close = () => {
+      console.log(store);
       store.selectedBead = null;
     };
 
     const nextClosestColor = (e) => {
-      console.log("Next Closest Color", e);
-      context.emit("on-next-closest-color", "HiClor");
+      console.log("Next Closest Color", e, store);
+      // context.emit("on-next-closest-color", "HiClor");
+      //       const previousBead = document.querySelector(
+      //   `.cs__item--active[data-selector-code]`
+      // );
+      //const { closestHex } = this.selectedCell.data;
+      //const closestMatch = closestColorMatcher(closestHex, true, ignoreList);
+
+      const { color } = store.selectedBead;
+      const { beadHex: hex } = color;
+      console.log("Color to compare", hex, allColors);
+      const result = closestColor(hex, true, [], {
+        usePerler: true,
+        useHama: true,
+      });
+      console.log("Result:", result);
+      store.replacementBead = result;
+      // if (previousBead) previousBead.classList.remove("cs__item--active");
+      // store.replacementBead = bead;
+      // const selectedItem = document.querySelector(
+      //   `[data-selector-code="${store.replacementBead.code}"]`
+      // );
+      // selectedItem.classList.add("cs__item--active");
     };
 
     return {

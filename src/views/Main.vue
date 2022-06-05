@@ -48,6 +48,8 @@ export default {
 
     const onNextClosestColor = (e) => {
       console.log("on Next Closest Color", e);
+      //const { closestHex } = this.selectedCell.data;
+      //const closestMatch = closestColorMatcher(closestHex, true, ignoreList);
     };
 
     return {
