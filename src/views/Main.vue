@@ -12,10 +12,11 @@
       <Colors />
     </section>
   </div>
-  <ColorSelector />
+  <ColorSelector @on-next-closest-color="onNextClosestColor" />
 </template>
 
 <script>
+//https://vuejs.org/api/sfc-script-setup.html
 import { ref } from "vue";
 import Controls from "../components/Controls";
 //import BeadGrid from '../components/BeadGrid';
@@ -45,12 +46,17 @@ export default {
       selectedBead.value = bead;
     };
 
+    const onNextClosestColor = (e) => {
+      console.log("on Next Closest Color", e);
+    };
+
     return {
       gridContainer,
       selectedBead,
       highlightBeads,
       title,
       canvasDimensions,
+      onNextClosestColor,
     };
   },
 };

@@ -1,23 +1,23 @@
 <template lang="pug">
 .colors
-	.colors__title Color List
-	.colors__list-container
-		ul.colors__list
-			//data-beadHex gets converted into beadHex by html
-			li.colors__bead(
-				v-for="bead in mappedBeads",
-				@click="onSelectBead",
-				@mouseover="highlightBeads",
-				:key="bead.id",
-				:data-code-name="bead.code + bead.name",
-				:data-code="bead.code",
-				:data-name="bead.name",
-				:data-beadhex="bead.color.beadHex"
-			)
-				.colors__color(:style="bgColor(bead)")
-				.colors__code ({{ bead.code }}) -
-				.colors__name {{ bead.name }}
-				.colors__count {{ bead.count }}
+  .colors__title Color List
+  .colors__list-container
+    ul.colors__list
+      //data-beadHex gets converted into beadHex by html
+      li.colors__bead(
+        v-for="bead in mappedBeads",
+        @click="onSelectBead",
+        @mouseover="highlightBeads",
+        :key="bead.id",
+        :data-code-name="bead.code + bead.name",
+        :data-code="bead.code",
+        :data-name="bead.name",
+        :data-beadhex="bead.color.beadHex"
+      )
+        .colors__color(:style="bgColor(bead)")
+        .colors__code ({{ bead.code }}) -
+        .colors__name {{ bead.name }}
+        .colors__count {{ bead.count }}
 </template>
 
 <script>

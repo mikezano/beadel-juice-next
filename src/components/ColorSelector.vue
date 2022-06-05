@@ -1,20 +1,21 @@
 <template lang="pug">
 <!-- cs = color selector -->
 .cs(
-	v-if="store.selectedBead",
-	draggable="true",
-	ref="cs",
-	@mousedown="dragStart"
+  v-if="store.selectedBead",
+  draggable="true",
+  ref="cs",
+  @mousedown="dragStart"
 )
-	.cs__header
-		.cs__code ({{ store.selectedBead.code }}) - 
-		.cs__name {{ store.selectedBead.name }}
-		.cs__close(@click="close") ×
-	ul.cs__list(ref="list")
-		li.cs__item(v-for="bead in beads", @click="onSetReplacementBead(bead)" :data-selector-code="bead.code")
-			.cs__item-color(:style="bgColor(bead)")
-			.cs__item-code &nbsp; ({{ bead.code }})
-			.cs__item-name &nbsp; - {{ bead.name }}
+  .cs__header
+    .cs__code ({{ store.selectedBead.code }}) - 
+    .cs__name {{ store.selectedBead.name }}
+    .cs__close(@click="close") ×
+  ul.cs__list(ref="list")
+    li.cs__item(v-for="bead in beads", @click="onSetReplacementBead(bead)" :data-selector-code="bead.code")
+      .cs__item-color(:style="bgColor(bead)")
+      .cs__item-code &nbsp; ({{ bead.code }})
+      .cs__item-name &nbsp; - {{ bead.name }}
+  button.cs__next-closest(@click="nextClosestColor") Next Color
 </template>
 
 <script>
@@ -23,7 +24,7 @@ import store from "../store/beadStore";
 import { sortedBeads } from "../utils/colors";
 
 export default {
-  setup() {
+  setup(props, context) {
     const container = document.body.getBoundingClientRect();
     const cs = ref(null);
     const list = ref(null);
@@ -93,6 +94,11 @@ export default {
       store.selectedBead = null;
     };
 
+    const nextClosestColor = (e) => {
+      console.log("Next Closest Color", e);
+      context.emit("on-next-closest-color", "HiClor");
+    };
+
     return {
       cs,
       list,
@@ -102,6 +108,7 @@ export default {
       beads,
       bgColor,
       onSetReplacementBead,
+      nextClosestColor,
     };
   },
 };
