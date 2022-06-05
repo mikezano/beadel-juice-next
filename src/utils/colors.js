@@ -66,7 +66,8 @@ const closestColor = (hex, ignoreExact, ignoreList, colorSet) => {
     const currentDistanceHSL = 0; //chroma.distance(p.hex, hexColor, "hsl");
     const currentDistanceRGB = chroma.distance(p.hex, hex, "rgb");
 
-    const totalDistance = currentDistance +
+    const totalDistance =
+      currentDistance +
       currentDistanceLAB +
       currentDistanceHSL +
       currentDistanceRGB;

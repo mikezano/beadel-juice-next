@@ -31,20 +31,20 @@ table
 import { ref } from "vue";
 import store from "../store/beadStore";
 export default {
-	setup() {
-		const manualPixelSize = ref(10);
-		const onSizeSelect = (e) => {
-			console.log(e);
-		};
+  setup() {
+    const manualPixelSize = ref(10);
+    const onSizeSelect = (e) => {
+      console.log(e);
+    };
 
-		return { store, onSizeSelect, manualPixelSize };
-	},
+    return { store, onSizeSelect, manualPixelSize };
+  },
 };
 </script>
 <style lang="scss" scoped>
 .sizing {
-	&__pixel-size {
-		width: 2rem;
-	}
+  &__pixel-size {
+    width: 2rem;
+  }
 }
 </style>
