@@ -15,7 +15,7 @@
       .cs__item-color(:style="bgColor(bead)")
       .cs__item-code &nbsp; ({{ bead.code }})
       .cs__item-name &nbsp; - {{ bead.name }}
-  button.cs__next-closest(@click="nextClosestColor") Next Color
+  button.cs__next-closest(@click="nextClosestColor") Next Color x
 </template>
 
 <script>
